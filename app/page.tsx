@@ -1,3 +1,7 @@
 export default function Home() {
-  return <h1>OK HOOKPILOT RUNNING</h1>
+  return (
+    <main style={{ padding: 40, fontFamily: "Arial, sans-serif" }}>
+      <h1>OK HOOKPILOT RUNNING</h1>
+    </main>
+  )
 }

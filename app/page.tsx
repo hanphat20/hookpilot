@@ -21,9 +21,7 @@ export default function Home() {
 
   useEffect(() => {
     const savedLang = localStorage.getItem("hookpilot_lang") as Lang | null
-    if (savedLang === "en" || savedLang === "vi") {
-      setLang(savedLang)
-    }
+    if (savedLang === "en" || savedLang === "vi") setLang(savedLang)
 
     const loadSessionAndPlan = async () => {
       const { data } = await supabase.auth.getSession()
@@ -56,7 +54,6 @@ export default function Home() {
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUserEmail(session?.user?.email ?? null)
-
       const sessionUserId = session?.user?.id ?? null
 
       if (sessionUserId) {
@@ -79,9 +76,7 @@ export default function Home() {
       }
     })
 
-    return () => {
-      listener.subscription.unsubscribe()
-    }
+    return () => listener.subscription.unsubscribe()
   }, [])
 
   const changeLang = (nextLang: Lang) => {

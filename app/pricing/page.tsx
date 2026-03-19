@@ -1,21 +1,23 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useSearchParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
 
 type Plan = "free" | "starter" | "pro"
 
 export default function PricingPage() {
-  const searchParams = useSearchParams()
-
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [userId, setUserId] = useState("")
   const [email, setEmail] = useState("")
   const [currentPlan, setCurrentPlan] = useState<Plan>("free")
+  const [success, setSuccess] = useState(false)
+  const [canceled, setCanceled] = useState(false)
 
-  const success = searchParams.get("success")
-  const canceled = searchParams.get("canceled")
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setSuccess(params.get("success") === "1")
+    setCanceled(params.get("canceled") === "1")
+  }, [])
 
   useEffect(() => {
     const loadUserAndPlan = async () => {

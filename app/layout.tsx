@@ -1,9 +1,13 @@
 import "./globals.css"
-import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 
-export const metadata: Metadata = {
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+})
+
+export const metadata = {
   title: "HookPilot",
-  description: "Create viral hooks for content and ads in seconds.",
+  description: "AI Hook Generator for content, ads, and creators",
 }
 
 export default function RootLayout({
@@ -13,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-slate-50 text-slate-900 antialiased">{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

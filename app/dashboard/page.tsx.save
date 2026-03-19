@@ -1,0 +1,264 @@
+    try {
+      const res = await fetch("/api/hooks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+       body: JSON.stringify({
+           topic,
+           platform,
+           audience,
+           lang,
+           framework,
+           userId,
+           plan: "free",
+       }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || t.error)
+      }
+
+      const nextHooks = Array.isArray(data.hooks) ? data.hooks : []
+      setHooks(nextHooks)
+
+      if (!userId) {
+        setError(t.loginRequired)
+        return
+      }
+
+      const { data: inserted, error: saveError } = await supabase
+        .from("generations")
+        .insert({
+          auth_user_id: userId,
+          topic,
+          platform,
+          audience,
+          framework,
+          lang,
+          hooks: nextHooks,
+        })
+        .select()
+        .single()
+
+      if (saveError) {
+        console.error(saveError)
+        setError(t.saveError)
+      } else if (inserted) {
+        setHistory((prev) => [inserted as GenerationRow, ...prev].slice(0, 10))
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t.error
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const copyHook = async (hook: string, index: number) => {
+    await navigator.clipboard.writeText(hook)
+    setCopiedIndex(index)
+    setTimeout(() => setCopiedIndex(null), 1200)
+  }
+
+  const copyAll = async () => {
+    await navigator.clipboard.writeText(hooks.join("\n"))
+  }
+
+  return (
+    <main className="min-h-screen bg-slate-50 px-6 py-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6 flex items-center justify-between">
+          <a
+            href="/"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+          >
+            {t.back}
+          </a>
+
+          <div className="flex gap-2 rounded-xl border border-slate-200 bg-white p-1">
+            <button
+              onClick={() => {
+                setLang("en")
+                localStorage.setItem("hookpilot_lang", "en")
+              }}
+              className={`rounded-lg px-3 py-2 text-sm ${lang === "en" ? "bg-slate-900 text-white" : "text-slate-600"}`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => {
+                setLang("vi")
+                localStorage.setItem("hookpilot_lang", "vi")
+              }}
+              className={`rounded-lg px-3 py-2 text-sm ${lang === "vi" ? "bg-slate-900 text-white" : "text-slate-600"}`}
+            >
+              VI
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-8 xl:grid-cols-3">
+          <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm xl:col-span-1">
+            <p className="text-sm font-medium text-blue-600">HookPilot</p>
+            <h1 className="mt-3 text-4xl font-semibold text-slate-900">{t.title}</h1>
+            <p className="mt-3 text-slate-600">{t.subtitle}</p>
+
+            <div className="mt-8 space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">{t.topic}</label>
+                <input
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder={t.placeholderTopic}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none placeholder:text-slate-400 focus:border-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">{t.platform}</label>
+                <select
+                  value={platform}
+                  onChange={(e) => setPlatform(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
+                >
+                  <option>TikTok</option>
+                  <option>YouTube</option>
+                  <option>Facebook Ads</option>
+                  <option>Email</option>
+                  <option>Landing Page</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">{t.audience}</label>
+                <input
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                  placeholder={t.placeholderAudience}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none placeholder:text-slate-400 focus:border-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">{t.framework}</label>
+                <select
+                  value={framework}
+                  onChange={(e) => setFramework(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
+                >
+                  {frameworkOptions.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                onClick={generateHooks}
+                disabled={loading}
+                className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {loading ? t.generating : t.generate}
+              </button>
+
+              <button
+                onClick={generateHooks}
+                disabled={loading}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60"
+              >
+                {t.regenerate}
+              </button>
+
+              {error ? (
+                <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {error}
+                </div>
+              ) : null}
+            </div>
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm xl:col-span-1">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-semibold text-slate-900">{t.result}</h2>
+              {hooks.length > 0 ? (
+                <button
+                  onClick={copyAll}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                >
+                  {t.copyAll}
+                </button>
+              ) : null}
+            </div>
+
+            {hooks.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-dashed border-slate-300 p-6 text-slate-500">
+                {t.empty}
+              </div>
+            ) : (
+              <div className="mt-6 space-y-3">
+                {hooks.map((hook, index) => (
+                  <div
+                    key={`${hook}-${index}`}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-slate-800"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <span className="mr-2 font-semibold text-blue-600">{index + 1}.</span>
+                        {hook}
+                      </div>
+
+                      <button
+                        onClick={() => copyHook(hook, index)}
+                        className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 py-1 text-sm hover:bg-slate-100"
+                      >
+                        {copiedIndex === index ? t.copied : t.copyOne}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm xl:col-span-1">
+            <h2 className="text-xl font-semibold text-slate-900">{t.history}</h2>
+
+            {history.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-dashed border-slate-300 p-6 text-slate-500">
+                {t.noHistory}
+              </div>
+            ) : (
+              <div className="mt-6 space-y-3">
+                {history.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setTopic(item.topic)
+                      setPlatform(item.platform)
+                      setAudience(item.audience)
+                      setFramework(item.framework || "default")
+                      setHooks(item.hooks)
+                    }}
+                    className="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-left hover:bg-slate-100"
+                  >
+                    <div className="text-sm font-semibold text-slate-900">{item.topic}</div>
+                    <div className="mt-1 text-sm text-slate-500">
+                      {item.platform}  {item.audience}
+                    </div>
+                    <div className="mt-2 text-xs text-slate-400">
+                      {new Date(item.created_at).toLocaleString()}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+    </main>
+  )
+}

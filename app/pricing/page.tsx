@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CheckoutButton } from "@/components/checkout-button";
 import { PageShell } from "@/components/page-shell";
 import { SectionBadge } from "@/components/section-badge";
@@ -13,7 +13,11 @@ export default function PricingPage() {
   const [offerSent, setOfferSent] = useState(false);
   const [offerLoading, setOfferLoading] = useState(false);
   const [offerError, setOfferError] = useState("");
-  const [promotionCode, setPromotionCode] = useState("FIRST10");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("user_email");
+    if (saved) setEmail(saved);
+  }, []);
 
   const canSendOffer = useMemo(() => email.trim().length > 3, [email]);
 
@@ -45,10 +49,10 @@ export default function PricingPage() {
       <section className="mx-auto max-w-5xl text-center">
         <SectionBadge>Pricing & first-payment offer</SectionBadge>
         <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white md:text-6xl">
-          Upgrade faster with a clearer checkout flow
+          Close more deals for less than one client commission
         </h1>
         <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-300 md:text-xl md:leading-9">
-          Enter your email once, unlock your first-payment offer, and choose the plan that fits your daily content output.
+          Use one email, unlock your first-payment discount, and choose the plan that fits your real estate workflow.
         </p>
       </section>
 
@@ -57,7 +61,7 @@ export default function PricingPage() {
           <div className="text-sm uppercase tracking-[0.22em] text-slate-400">Checkout setup</div>
           <h2 className="mt-4 text-3xl font-semibold text-white">Prepare your first upgrade</h2>
           <p className="mt-3 max-w-2xl text-lg leading-8 text-slate-300">
-            Use one email for billing, collect your first-payment discount, then move straight into the plan you want.
+            Enter your billing email once, collect the first-order offer, then move straight into the plan you want.
           </p>
 
           <div className="mt-8 space-y-6">
@@ -65,21 +69,20 @@ export default function PricingPage() {
               <label className="mb-3 block text-lg font-medium text-slate-200">Checkout email</label>
               <input
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  localStorage.setItem("user_email", e.target.value);
+                }}
                 placeholder="Enter your email first"
                 className="w-full rounded-2xl border border-white/10 bg-[#05101d] px-5 py-4 text-lg text-white outline-none placeholder:text-slate-500"
               />
             </div>
 
-            <div>
-              <label className="mb-3 block text-lg font-medium text-slate-200">First-order discount code</label>
-              <input
-                value={promotionCode}
-                onChange={(e) => setPromotionCode(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-[#05101d] px-5 py-4 text-lg text-white outline-none"
-              />
-              <p className="mt-3 text-base leading-7 text-slate-400">
-                Suggested code: FIRST10. Enable promotion codes in Stripe and create the 10% promotion code there.
+            <div className="rounded-[28px] border border-cyan-400/25 bg-cyan-400/[0.08] p-5">
+              <div className="text-sm uppercase tracking-[0.22em] text-cyan-100">First-payment code</div>
+              <div className="mt-3 text-4xl font-semibold tracking-tight text-white">FIRST10</div>
+              <p className="mt-3 text-base leading-7 text-slate-200">
+                Create the 10% promotion code in Stripe and use it during checkout.
               </p>
             </div>
 
@@ -100,21 +103,14 @@ export default function PricingPage() {
         </div>
 
         <div className="rounded-[34px] border border-cyan-400/25 bg-cyan-400/[0.09] p-8 shadow-[0_30px_90px_rgba(2,10,20,0.35)]">
-          <div className="text-sm uppercase tracking-[0.22em] text-cyan-100">First-payment offer</div>
-          <h2 className="mt-4 text-4xl font-semibold tracking-tight text-white">Give customers a stronger reason to upgrade now</h2>
+          <div className="text-sm uppercase tracking-[0.22em] text-cyan-100">Why this converts</div>
+          <h2 className="mt-4 text-4xl font-semibold tracking-tight text-white">One new deal can justify the upgrade</h2>
           <ul className="mt-6 space-y-4 text-lg leading-8 text-slate-100">
             <li>• 10% off for the first payment</li>
             <li>• Reminder emails before expiry</li>
-            <li>• Lock back to free if the plan expires</li>
+            <li>• Automatic lock when the plan expires</li>
             <li>• Payment-failed reminder flow</li>
           </ul>
-
-          <div className="mt-8 rounded-[28px] border border-cyan-400/20 bg-[#05101d]/30 p-6">
-            <div className="text-sm uppercase tracking-[0.22em] text-slate-300">Suggested copy</div>
-            <p className="mt-3 text-lg leading-8 text-white">
-              Upgrade today, use code <span className="font-semibold text-cyan-300">FIRST10</span>, and save on your first payment.
-            </p>
-          </div>
         </div>
       </section>
 
@@ -125,8 +121,8 @@ export default function PricingPage() {
           <p className="mt-4 text-lg leading-8 text-slate-300">Good for testing the workflow before upgrading.</p>
           <ul className="mt-8 space-y-4 text-lg leading-8 text-slate-300">
             <li>• 5 generations per day</li>
-            <li>• Basic hook workflow</li>
-            <li>• No advanced exports</li>
+            <li>• Basic access only</li>
+            <li>• No buyer scripts or ad tools</li>
           </ul>
           <button
             type="button"
@@ -143,12 +139,12 @@ export default function PricingPage() {
           <div className="mt-5 text-3xl font-semibold text-white">Starter</div>
           <div className="mt-5 text-6xl font-semibold tracking-tight text-white">$19</div>
           <p className="mt-4 text-lg leading-8 text-slate-300">
-            For solo sellers and creators who need reliable daily output.
+            For solo agents who need listing and buyer follow-up workflows.
           </p>
           <ul className="mt-8 space-y-4 text-lg leading-8 text-slate-200">
             <li>• 50 generations per day</li>
-            <li>• Captions and script workflows</li>
-            <li>• Basic export support</li>
+            <li>• Listing generator</li>
+            <li>• Buyer follow-up generator</li>
           </ul>
           <div className="mt-9">
             <CheckoutButton priceId={starterPriceId} email={email} label="Choose Starter" />
@@ -159,12 +155,12 @@ export default function PricingPage() {
           <div className="text-3xl font-semibold text-white">Pro</div>
           <div className="mt-5 text-6xl font-semibold tracking-tight text-white">$49</div>
           <p className="mt-4 text-lg leading-8 text-slate-300">
-            For teams that need stronger output, better exports, and more advanced copy tools.
+            For teams that need stronger ad output and the full workflow.
           </p>
           <ul className="mt-8 space-y-4 text-lg leading-8 text-slate-200">
             <li>• Unlimited generation</li>
-            <li>• Landing page generator</li>
-            <li>• Full export and premium features</li>
+            <li>• Property ads generator</li>
+            <li>• Full premium workflow</li>
           </ul>
           <div className="mt-9">
             <CheckoutButton priceId={proPriceId} email={email} label="Choose Pro" />

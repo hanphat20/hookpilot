@@ -8,10 +8,10 @@ export default function ToolsPage() {
     <PageShell>
       <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
         <div className="max-w-4xl">
-          <SectionBadge>Tool suite</SectionBadge>
-          <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white md:text-6xl">Working tools</h1>
+          <SectionBadge>Real estate tool suite</SectionBadge>
+          <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white md:text-6xl">Agent workflow tools</h1>
           <p className="mt-5 text-lg leading-8 text-slate-300 md:text-xl md:leading-9">
-            Use these tools to create hooks, sales content, video scripts, and landing page copy with a cleaner workflow.
+            Create listing descriptions, buyer follow-up scripts, and property ad copy with a cleaner workflow.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
@@ -33,25 +33,25 @@ export default function ToolsPage() {
 
       <section className="mt-12 grid gap-6 xl:grid-cols-3">
         <ToolCard
-          href="/tools/content"
-          title="AI Content Generator"
+          href="/tools/listing"
+          title="Listing Generator"
           subtitle="Starter tool"
           badge="Starter"
-          description="Generate hooks, captions, CTA lines, and video scripts from a keyword, platform, and campaign goal."
+          description="Turn raw property details into polished listing descriptions for portals, websites, and social posts."
         />
         <ToolCard
-          href="/tools/hooks"
-          title="Viral Hook Generator"
-          subtitle="Free tool"
-          badge="Free"
-          description="Create multiple hook lines that focus on pain points, benefits, urgency, or emotion for your niche."
+          href="/tools/buyer"
+          title="Buyer Follow-up Generator"
+          subtitle="Starter tool"
+          badge="Starter"
+          description="Create stronger follow-up messages for new inquiries, showings, and warm buyer conversations."
         />
         <ToolCard
-          href="/tools/landing"
-          title="Landing Page Copy Generator"
+          href="/tools/ads"
+          title="Property Ads Generator"
           subtitle="Pro tool"
           badge="Pro"
-          description="Build landing page messaging from your brand, offer, and CTA so you can move to code faster."
+          description="Generate ad headlines, primary text, and CTA angles for property campaigns and quick launches."
         />
       </section>
     </PageShell>

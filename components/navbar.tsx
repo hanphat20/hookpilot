@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { CustomerAuthButtons } from "@/components/customer-auth-buttons";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -28,12 +29,6 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/"
-            className="rounded-2xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
-          >
-            Home
-          </Link>
-          <Link
             href="/tools"
             className="rounded-2xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
           >
@@ -45,6 +40,7 @@ export function Navbar() {
           >
             Upgrade
           </Link>
+          <CustomerAuthButtons />
         </div>
       </div>
     </header>

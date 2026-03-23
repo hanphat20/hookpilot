@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { PageShell } from "@/components/page-shell";
 import { SectionBadge } from "@/components/section-badge";
 
-export default function ListingToolPage() {
-  const [text, setText] = useState("");
+export default function AdsToolPage() {
+  const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState("free");
@@ -15,16 +15,16 @@ export default function ListingToolPage() {
   }, []);
 
   async function handleGenerate() {
-    if (!text.trim()) return;
+    if (!input.trim()) return;
     setLoading(true);
 
     try {
-      const res = await fetch("/api/ai/listing", {
+      const res = await fetch("/api/ai/ads", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ input }),
       });
 
       const data = await res.json();
@@ -34,20 +34,20 @@ export default function ListingToolPage() {
     }
   }
 
-  if (plan === "free") {
+  if (plan !== "pro") {
     return (
       <PageShell>
         <div className="mx-auto max-w-3xl rounded-[34px] border border-white/10 bg-white/[0.04] p-8 text-center shadow-[0_30px_90px_rgba(2,10,20,0.35)]">
-          <SectionBadge>Starter required</SectionBadge>
-          <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white">Upgrade to unlock Listing Generator</h1>
+          <SectionBadge>Pro required</SectionBadge>
+          <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white">Upgrade to unlock Property Ads Generator</h1>
           <p className="mt-5 text-lg leading-8 text-slate-300">
-            This tool is available on Starter and Pro plans.
+            This tool is available on the Pro plan.
           </p>
           <a
             href="/pricing"
             className="mt-8 inline-flex rounded-2xl bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300"
           >
-            Upgrade now
+            Upgrade to Pro
           </a>
         </div>
       </PageShell>
@@ -57,30 +57,30 @@ export default function ListingToolPage() {
   return (
     <PageShell>
       <div className="max-w-5xl">
-        <SectionBadge>Starter tool</SectionBadge>
-        <h1 className="mt-6 text-6xl font-semibold tracking-tight text-white">Real Estate Listing Generator</h1>
+        <SectionBadge>Pro tool</SectionBadge>
+        <h1 className="mt-6 text-6xl font-semibold tracking-tight text-white">Property Ads Generator</h1>
         <p className="mt-5 text-xl leading-9 text-slate-300">
-          Paste property details and generate a cleaner real estate listing description with a more polished presentation.
+          Generate ad headlines, primary text, and CTA angles for property campaigns and quick launches.
         </p>
       </div>
 
       <section className="mt-10 grid gap-6 xl:grid-cols-[1fr,1fr]">
         <div className="rounded-[34px] border border-white/10 bg-white/[0.04] p-7 shadow-[0_30px_90px_rgba(2,10,20,0.35)]">
-          <label className="mb-3 block text-lg font-medium text-slate-200">Property details</label>
+          <label className="mb-3 block text-lg font-medium text-slate-200">Property ad brief</label>
           <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Example: 3-bedroom townhouse in Austin, 2 baths, open kitchen, private patio, close to schools and shopping..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Example: New 4-bedroom family home in Miami, pool, updated kitchen, close to schools, targeting families relocating this summer..."
             className="min-h-[300px] w-full rounded-2xl border border-white/10 bg-[#05101d] px-5 py-4 text-lg text-white outline-none placeholder:text-slate-500"
           />
           <div className="mt-6">
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={loading || !text.trim()}
+              disabled={loading || !input.trim()}
               className="rounded-2xl bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Generating..." : "Generate listing"}
+              {loading ? "Generating..." : "Generate ads"}
             </button>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function ListingToolPage() {
         <div className="rounded-[34px] border border-white/10 bg-white/[0.04] p-7 shadow-[0_30px_90px_rgba(2,10,20,0.35)]">
           {!output ? (
             <div className="flex min-h-[380px] items-center justify-center rounded-[28px] border border-dashed border-white/10 bg-[#05101d]/70 text-center text-lg leading-8 text-slate-400">
-              Your generated listing will appear here.
+              Your property ad copy will appear here.
             </div>
           ) : (
             <pre className="whitespace-pre-wrap rounded-[28px] border border-white/10 bg-[#05101d]/75 p-6 text-lg leading-8 text-slate-200">

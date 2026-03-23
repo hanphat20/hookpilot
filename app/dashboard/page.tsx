@@ -37,6 +37,7 @@ const dashboardCopy = {
     home: "Home",
     helper: "Use short, clear input for better output.",
     signedIn: "Signed in as",
+    checking: "Checking session...",
   },
   vi: {
     title: "Dashboard tạo Hook",
@@ -58,6 +59,7 @@ const dashboardCopy = {
     home: "Trang chủ",
     helper: "Nhập ngắn gọn, rõ ràng để ra kết quả tốt hơn.",
     signedIn: "Đăng nhập bởi",
+    checking: "Đang kiểm tra phiên đăng nhập...",
   },
 } as const
 
@@ -136,6 +138,7 @@ export default function DashboardPage() {
   const [language, setLanguage] = useState("English")
   const [tone, setTone] = useState<Tone>("Curiosity")
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
   const [hooks, setHooks] = useState<string[]>([])
   const [history, setHistory] = useState<HistoryItem[]>([])
 
@@ -153,7 +156,13 @@ export default function DashboardPage() {
     }
 
     supabase.auth.getSession().then(({ data }) => {
-      setUserEmail(data.session?.user?.email ?? "")
+      const sessionUser = data.session?.user
+      if (!sessionUser) {
+        window.location.href = "/"
+        return
+      }
+      setUserEmail(sessionUser.email ?? "")
+      setChecking(false)
     })
   }, [])
 
@@ -222,6 +231,14 @@ export default function DashboardPage() {
     window.location.href = "/"
   }
 
+  if (checking) {
+    return (
+      <main className="min-h-screen px-4 py-8 text-center text-white">
+        {t.checking}
+      </main>
+    )
+  }
+
   return (
     <main className="min-h-screen px-4 py-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -237,22 +254,13 @@ export default function DashboardPage() {
               <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
                 {t.signedIn}: <span className="font-semibold text-white">{userEmail || "Guest"}</span>
               </div>
-              <a
-                href="/"
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
-              >
+              <a href="/" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                 {t.home}
               </a>
-              <a
-                href="/pricing"
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
-              >
+              <a href="/pricing" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                 {t.pricing}
               </a>
-              <button
-                onClick={signOut}
-                className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400"
-              >
+              <button onClick={signOut} className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400">
                 {t.signout}
               </button>
             </div>

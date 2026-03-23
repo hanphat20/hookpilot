@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
 
 type Plan = "free" | "starter" | "pro"
 
-export default function PricingPage() {
+function PricingContent() {
   const searchParams = useSearchParams()
 
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
@@ -207,5 +207,21 @@ export default function PricingPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-slate-50 px-6 py-16">
+          <div className="mx-auto max-w-6xl text-center text-slate-600">
+            Loading pricing...
+          </div>
+        </main>
+      }
+    >
+      <PricingContent />
+    </Suspense>
   )
 }

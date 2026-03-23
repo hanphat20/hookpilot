@@ -13,11 +13,10 @@ export async function POST(req: Request) {
 
   const { data } = await supabase
     .from("usage_logs")
-    .select("*")
+    .select("count")
     .eq("auth_user_id", userId)
     .eq("date", today)
+    .maybeSingle()
 
-  const count = data?.length || 0
-
-  return NextResponse.json({ count })
+  return NextResponse.json({ count: data?.count || 0 })
 }

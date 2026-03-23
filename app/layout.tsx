@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/navbar";
 import "./globals.css";
+import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: "HookPilot",
-  description: "AI content and landing page toolkit",
+  description: "AI content and landing tools",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-[#08111f] text-white antialiased">
+      <body className="bg-[#06101d] text-white antialiased">
         <Navbar />
         {children}
       </body>

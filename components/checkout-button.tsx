@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 
-type CheckoutButtonProps = {
+type Props = {
   priceId: string;
   email?: string;
   label?: string;
 };
 
-export function CheckoutButton({ priceId, email, label = "Choose plan" }: CheckoutButtonProps) {
+export function CheckoutButton({ priceId, email, label = "Choose plan" }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,7 +21,7 @@ export function CheckoutButton({ priceId, email, label = "Choose plan" }: Checko
     }
 
     if (!email) {
-      setError("Please enter your email before checkout.");
+      setError("Please enter your email first.");
       return;
     }
 
@@ -42,12 +42,11 @@ export function CheckoutButton({ priceId, email, label = "Choose plan" }: Checko
         throw new Error(data?.error || "Checkout failed");
       }
 
-      if (data?.url) {
-        window.location.href = data.url;
-        return;
+      if (!data?.url) {
+        throw new Error("Missing checkout URL");
       }
 
-      throw new Error("Missing checkout URL");
+      window.location.href = data.url;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Checkout failed");
     } finally {
@@ -61,11 +60,11 @@ export function CheckoutButton({ priceId, email, label = "Choose plan" }: Checko
         type="button"
         onClick={handleCheckout}
         disabled={loading}
-        className="w-full rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-2xl bg-cyan-400 px-5 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Redirecting..." : label}
       </button>
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-rose-300">{error}</p> : null}
     </div>
   );
 }

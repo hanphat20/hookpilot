@@ -35,12 +35,11 @@ export function BillingPortalButton({ customerId }: Props) {
         throw new Error(data?.error || "Could not open billing portal");
       }
 
-      if (data?.url) {
-        window.location.href = data.url;
-        return;
+      if (!data?.url) {
+        throw new Error("Missing portal URL");
       }
 
-      throw new Error("Missing portal URL");
+      window.location.href = data.url;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not open billing portal");
     } finally {
@@ -54,7 +53,7 @@ export function BillingPortalButton({ customerId }: Props) {
         type="button"
         onClick={openPortal}
         disabled={loading}
-        className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+        className="rounded-2xl border border-white/10 bg-white/8 px-6 py-4 text-base font-medium text-white transition hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Opening..." : "Manage card & auto-renew"}
       </button>

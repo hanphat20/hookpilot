@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const { brand, offer, cta } = await req.json();
 
-  const headline = `${brand} giúp bạn triển khai nhanh hơn và bán hàng rõ ràng hơn.`;
-  const subheadline = `Tối ưu thông điệp, bố cục và lời kêu gọi hành động cho ưu đãi hoặc sản phẩm: ${offer}`;
+  const headline = `${brand} helps you launch faster and sell with more clarity.`;
+  const subheadline = `Turn this offer into a sharper landing page message: ${offer}`;
   const bulletPoints = [
-    "Làm rõ lợi ích cốt lõi thay vì trình bày lan man.",
-    "Chuyển ưu đãi thành thông điệp dễ hiểu và dễ mua hơn.",
-    "Tạo khung nội dung có thể đưa thẳng sang landing page hoặc quảng cáo.",
+    "Clarify the core benefit instead of writing broad, weak copy.",
+    "Translate the offer into simple messaging that is easier to buy.",
+    "Generate a landing structure you can move into code or a builder quickly.",
   ];
 
   const html = `<section class="hero">

@@ -4,28 +4,24 @@ export async function POST(req: Request) {
   const { keyword, platform, goal } = await req.json();
 
   const hooks = [
-    `Đừng triển khai "${keyword}" theo cách cũ nữa nếu mục tiêu của bạn là ${goal.toLowerCase()}.`,
-    `3 hướng làm nội dung về "${keyword}" trên ${platform} giúp thông điệp rõ hơn và dễ ra khách hơn.`,
-    `Nếu bạn đang bí ý tưởng cho "${keyword}", đây là công thức nhanh để tạo nội dung có chuyển đổi.`,
+    `Stop creating content around "${keyword}" the old way if your real goal is ${String(goal).toLowerCase()}.`,
+    `Three angles for "${keyword}" on ${platform} that make your message clearer and easier to convert.`,
+    `If you are stuck on "${keyword}", this is a faster structure for content that actually moves people.`,
   ];
 
   const caption = [
-    `Bạn không cần quá nhiều nội dung, bạn cần đúng nội dung.`,
-    `Với chủ đề "${keyword}", hãy tập trung vào nỗi đau thật, lợi ích rõ ràng và lời kêu gọi hành động dứt khoát.`,
-    `Phù hợp cho nền tảng ${platform} và mục tiêu ${goal.toLowerCase()}.`,
+    "You do not need more content. You need the right content.",
+    `For "${keyword}", focus on a real pain point, a clear outcome, and a direct CTA that fits ${platform}.`,
+    `This version is shaped for the goal: ${goal}.`,
   ].join("\n\n");
 
   const script = [
-    `Mở đầu: Nói thẳng vấn đề lớn nhất mà khách hàng gặp phải khi xử lý "${keyword}".`,
-    `Phần giữa: Đưa ra 2 đến 3 ý chính giúp họ thấy giải pháp cụ thể, dễ làm và đáng tin.`,
-    `Kết thúc: Kêu gọi họ bấm vào hành động chính để nhận demo, tư vấn hoặc dùng thử ngay.`,
+    `Opening: call out the biggest problem your audience faces when dealing with "${keyword}".`,
+    "Middle: show two or three clear points that make the solution practical and believable.",
+    "Ending: push one direct CTA so the viewer knows exactly what to do next.",
   ].join("\n\n");
 
-  const ctas = [
-    "Nhận bản demo",
-    "Dùng thử ngay",
-    "Xem cách triển khai",
-  ];
+  const ctas = ["Get the demo", "Start now", "See the workflow"];
 
   return NextResponse.json({ hooks, caption, script, ctas });
 }

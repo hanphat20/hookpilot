@@ -6,7 +6,7 @@ import { GenerateButton } from "@/components/generate-button";
 export default function HooksToolPage() {
   const [niche, setNiche] = useState("");
   const [audience, setAudience] = useState("");
-  const [tone, setTone] = useState("Mạnh mẽ");
+  const [tone, setTone] = useState("Bold");
   const [loading, setLoading] = useState(false);
   const [hooks, setHooks] = useState<string[]>([]);
 
@@ -35,11 +35,11 @@ export default function HooksToolPage() {
       <div className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
           <div className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-cyan-200">
-            Công cụ miễn phí
+            Free tool
           </div>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight">Tạo hook viral</h1>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight">Viral Hook Generator</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Tạo hàng loạt câu mở đầu cho video, bài viết hoặc quảng cáo theo ngành, đối tượng và phong cách diễn đạt.
+            Create multiple opening lines for ads, posts, or short videos based on a niche, audience, and tone.
           </p>
         </div>
 
@@ -47,58 +47,55 @@ export default function HooksToolPage() {
           <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">Ngách nội dung</label>
+                <label className="mb-2 block text-sm font-medium text-slate-200">Niche</label>
                 <input
                   value={niche}
                   onChange={(e) => setNiche(e.target.value)}
-                  placeholder="Ví dụ: phần mềm marketing"
+                  placeholder="Example: marketing software"
                   className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">Đối tượng khách hàng</label>
+                <label className="mb-2 block text-sm font-medium text-slate-200">Audience</label>
                 <input
                   value={audience}
                   onChange={(e) => setAudience(e.target.value)}
-                  placeholder="Ví dụ: chủ shop online"
+                  placeholder="Example: online shop owners"
                   className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">Phong cách</label>
+                <label className="mb-2 block text-sm font-medium text-slate-200">Tone</label>
                 <select
                   value={tone}
                   onChange={(e) => setTone(e.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none"
                 >
-                  <option>Mạnh mẽ</option>
-                  <option>Khẩn cấp</option>
-                  <option>Cao cấp</option>
-                  <option>Thân thiện</option>
+                  <option>Bold</option>
+                  <option>Urgent</option>
+                  <option>Premium</option>
+                  <option>Friendly</option>
                 </select>
               </div>
 
-              <GenerateButton loading={loading} label="Tạo hook" />
+              <GenerateButton loading={loading} label="Generate hooks" />
             </form>
           </section>
 
           <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
             {hooks.length === 0 ? (
               <div className="flex h-full min-h-[420px] items-center justify-center rounded-3xl border border-dashed border-white/10 bg-slate-950/30 text-center text-sm leading-6 text-slate-400">
-                Nhập dữ liệu rồi bấm tạo hook để nhận danh sách câu mở đầu.
+                Enter your inputs and generate hook ideas here.
               </div>
             ) : (
               <div className="grid gap-4">
                 {hooks.map((hook, index) => (
-                  <div
-                    key={hook}
-                    className="rounded-3xl border border-white/10 bg-slate-950/40 p-5"
-                  >
-                    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Hook số {index + 1}</div>
+                  <div key={hook} className="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
+                    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Hook {index + 1}</div>
                     <p className="mt-3 text-sm leading-7 text-slate-200">{hook}</p>
                   </div>
                 ))}

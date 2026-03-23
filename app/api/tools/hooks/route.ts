@@ -4,14 +4,14 @@ export async function POST(req: Request) {
   const { niche, audience, tone } = await req.json();
 
   const hooks = [
-    `Phần lớn ${audience} đang làm "${niche}" sai từ bước đầu mà chưa nhận ra.`,
-    `Đây là lý do vì sao nhiều ${audience} mãi không bứt lên khi triển khai "${niche}".`,
-    `Nếu bạn muốn "${niche}" hiệu quả hơn, hãy dừng ngay thói quen này.`,
-    `Không cần thêm quá nhiều ngân sách, ${audience} vẫn có thể cải thiện "${niche}" theo cách thông minh hơn.`,
-    `${tone}: đa số người làm "${niche}" đang bỏ lỡ đúng đòn bẩy tạo chuyển đổi.`,
-    `Một thay đổi nhỏ trong "${niche}" có thể giúp ${audience} tiết kiệm rất nhiều thời gian và chi phí.`,
-    `Tại sao có người làm "${niche}" ít hơn nhưng hiệu quả hơn phần đông?`,
-    `Nếu bắt đầu lại từ đầu với "${niche}", đây là câu mở đầu tôi sẽ dùng ngay hôm nay.`,
+    `Most ${audience} are approaching "${niche}" the wrong way from the start.`,
+    `This is why many ${audience} never break through with "${niche}".`,
+    `If you want "${niche}" to perform better, stop doing this one thing today.`,
+    `You do not always need a bigger budget for "${niche}" if your message is stronger.`,
+    `${tone}: most people working on "${niche}" are missing the real lever that drives conversion.`,
+    `One small change in "${niche}" can save ${audience} a lot of time and wasted effort.`,
+    `Why do some people do less around "${niche}" but still outperform everyone else?`,
+    `If I had to restart "${niche}" today, this is the first hook I would test.`,
   ];
 
   return NextResponse.json({ hooks });

@@ -4,64 +4,68 @@ import { useState } from "react";
 
 type CheckoutButtonProps = {
   priceId: string;
-  planName: string;
-  userEmail?: string | null;
-  disabled?: boolean;
+  email?: string;
+  label?: string;
 };
 
-export function CheckoutButton({
-  priceId,
-  planName,
-  userEmail,
-  disabled = false,
-}: CheckoutButtonProps) {
+export function CheckoutButton({ priceId, email, label = "Choose plan" }: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
-  const handleCheckout = async () => {
+  async function handleCheckout() {
+    setError("");
+
     if (!priceId) {
-      setError(`Thiếu price ID cho gói ${planName}.`);
+      setError("Missing Stripe price ID. / Thiếu Stripe price ID.");
       return;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
+    if (!email) {
+      setError("Please enter your email before checkout. / Vui lòng nhập email trước khi thanh toán.");
+      return;
+    }
 
+    setLoading(true);
+
+    try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId, email: userEmail ?? undefined }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ priceId, email }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Không tạo được phiên thanh toán.");
+        throw new Error(data?.error || "Checkout failed");
       }
 
-      if (!data?.url) {
-        throw new Error("Stripe không trả về đường dẫn thanh toán.");
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
       }
 
-      window.location.href = data.url;
+      throw new Error("Missing checkout URL");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Có lỗi xảy ra.");
+      setError(err instanceof Error ? err.message : "Checkout failed");
+    } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <button
         type="button"
         onClick={handleCheckout}
-        disabled={disabled || loading}
-        className="inline-flex w-full items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={loading}
+        className="w-full rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Đang chuyển sang Stripe..." : `Chọn gói ${planName}`}
+        {loading ? "Redirecting..." : label}
       </button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-red-400">{error}</p> : null}
     </div>
   );
 }

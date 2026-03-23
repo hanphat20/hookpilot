@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { GenerateButton } from "@/components/generate-button";
+import { PageShell } from "@/components/page-shell";
+import { SectionBadge } from "@/components/section-badge";
 
 export default function HooksToolPage() {
   const [niche, setNiche] = useState("");
@@ -31,79 +33,75 @@ export default function HooksToolPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.14),_transparent_30%),linear-gradient(180deg,#071120_0%,#091428_45%,#0b1322_100%)] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8">
-          <div className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-cyan-200">
-            Free tool
-          </div>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight">Viral Hook Generator</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Create multiple opening lines for ads, posts, or short videos based on a niche, audience, and tone.
-          </p>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[420px,1fr]">
-          <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">Niche</label>
-                <input
-                  value={niche}
-                  onChange={(e) => setNiche(e.target.value)}
-                  placeholder="Example: marketing software"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">Audience</label>
-                <input
-                  value={audience}
-                  onChange={(e) => setAudience(e.target.value)}
-                  placeholder="Example: online shop owners"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">Tone</label>
-                <select
-                  value={tone}
-                  onChange={(e) => setTone(e.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none"
-                >
-                  <option>Bold</option>
-                  <option>Urgent</option>
-                  <option>Premium</option>
-                  <option>Friendly</option>
-                </select>
-              </div>
-
-              <GenerateButton loading={loading} label="Generate hooks" />
-            </form>
-          </section>
-
-          <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
-            {hooks.length === 0 ? (
-              <div className="flex h-full min-h-[420px] items-center justify-center rounded-3xl border border-dashed border-white/10 bg-slate-950/30 text-center text-sm leading-6 text-slate-400">
-                Enter your inputs and generate hook ideas here.
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {hooks.map((hook, index) => (
-                  <div key={hook} className="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
-                    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Hook {index + 1}</div>
-                    <p className="mt-3 text-sm leading-7 text-slate-200">{hook}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
+    <PageShell>
+      <div className="max-w-5xl">
+        <SectionBadge>Free tool</SectionBadge>
+        <h1 className="mt-6 text-6xl font-semibold tracking-tight text-white">Viral Hook Generator</h1>
+        <p className="mt-5 text-xl leading-9 text-slate-300">
+          Create stronger opening lines for ads, posts, and short videos based on a niche, audience, and tone.
+        </p>
       </div>
-    </main>
+
+      <section className="mt-10 grid gap-6 xl:grid-cols-[420px,1fr]">
+        <div className="rounded-[34px] border border-white/10 bg-white/[0.04] p-7 shadow-[0_30px_90px_rgba(2,10,20,0.35)]">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="mb-3 block text-lg font-medium text-slate-200">Niche</label>
+              <input
+                value={niche}
+                onChange={(e) => setNiche(e.target.value)}
+                placeholder="Example: marketing software"
+                className="w-full rounded-2xl border border-white/10 bg-[#05101d] px-5 py-4 text-lg text-white outline-none placeholder:text-slate-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-3 block text-lg font-medium text-slate-200">Audience</label>
+              <input
+                value={audience}
+                onChange={(e) => setAudience(e.target.value)}
+                placeholder="Example: online shop owners"
+                className="w-full rounded-2xl border border-white/10 bg-[#05101d] px-5 py-4 text-lg text-white outline-none placeholder:text-slate-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-3 block text-lg font-medium text-slate-200">Tone</label>
+              <select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                className="w-full rounded-2xl border border-white/10 bg-[#05101d] px-5 py-4 text-lg text-white outline-none"
+              >
+                <option>Bold</option>
+                <option>Urgent</option>
+                <option>Premium</option>
+                <option>Friendly</option>
+              </select>
+            </div>
+
+            <GenerateButton loading={loading} label="Generate hooks" />
+          </form>
+        </div>
+
+        <div className="rounded-[34px] border border-white/10 bg-white/[0.04] p-7 shadow-[0_30px_90px_rgba(2,10,20,0.35)]">
+          {hooks.length === 0 ? (
+            <div className="flex min-h-[420px] items-center justify-center rounded-[28px] border border-dashed border-white/10 bg-[#05101d]/70 text-center text-lg leading-8 text-slate-400">
+              Your generated hooks will appear here.
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {hooks.map((hook, index) => (
+                <div key={hook} className="rounded-[28px] border border-white/10 bg-[#05101d]/75 p-6">
+                  <div className="text-sm uppercase tracking-[0.22em] text-slate-400">Hook {index + 1}</div>
+                  <p className="mt-4 text-lg leading-8 text-slate-200">{hook}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </PageShell>
   );
 }

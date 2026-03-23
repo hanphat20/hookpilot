@@ -1,9 +1,15 @@
 export type Plan = "free" | "starter" | "pro";
 
-export function canUseExport(plan: Plan) {
+export const PLAN_LABELS: Record<Plan, string> = {
+  free: "FREE",
+  starter: "STARTER",
+  pro: "PRO",
+};
+
+export function canUseStarterFeatures(plan: Plan): boolean {
   return plan === "starter" || plan === "pro";
 }
 
-export function canUseAdvancedFeatures(plan: Plan) {
+export function canUseProFeatures(plan: Plan): boolean {
   return plan === "pro";
 }

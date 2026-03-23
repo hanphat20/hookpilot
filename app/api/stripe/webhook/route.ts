@@ -38,10 +38,7 @@ export async function POST(req: Request) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object
-        const authUserId =
-          session.metadata?.auth_user_id ||
-          session.subscription_details?.metadata?.auth_user_id ||
-          null
+        const authUserId = session.metadata?.auth_user_id || null
 
         if (authUserId && session.subscription) {
           const subscriptionId =
@@ -65,10 +62,8 @@ export async function POST(req: Request) {
               stripe_price_id: priceId,
               plan,
               status: stripeSubscription.status,
-              current_period_end: stripeSubscription.items.data[0]?.current_period_end
-                ? new Date(
-                    stripeSubscription.items.data[0].current_period_end * 1000
-                  ).toISOString()
+              current_period_end: item?.current_period_end
+                ? new Date(item.current_period_end * 1000).toISOString()
                 : null,
               updated_at: new Date().toISOString(),
             },

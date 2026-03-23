@@ -3,21 +3,20 @@ import { stripe } from "@/lib/stripe";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const customerId = body?.customerId as string | undefined;
+    const { customerId } = await req.json();
 
     if (!customerId) {
-      return NextResponse.json({ error: "Thiếu customerId." }, { status: 400 });
+      return NextResponse.json({ error: "Missing customerId" }, { status: 400 });
     }
 
-    const portal = await stripe.billingPortal.sessions.create({
+    const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
     });
 
-    return NextResponse.json({ url: portal.url });
+    return NextResponse.json({ url: session.url });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Không tạo được billing portal.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("portal error", error);
+    return NextResponse.json({ error: "Could not create billing portal session" }, { status: 500 });
   }
 }

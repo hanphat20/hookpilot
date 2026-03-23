@@ -6,21 +6,29 @@ import { ToolCard } from "@/components/tool-card";
 export default function ToolsPage() {
   return (
     <PageShell>
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
         <div className="max-w-4xl">
           <SectionBadge>Tool suite</SectionBadge>
-          <h1 className="mt-6 text-6xl font-semibold tracking-tight text-white">Working tools</h1>
-          <p className="mt-5 text-xl leading-9 text-slate-300">
+          <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white md:text-6xl">Working tools</h1>
+          <p className="mt-5 text-lg leading-8 text-slate-300 md:text-xl md:leading-9">
             Use these tools to create hooks, sales content, video scripts, and landing page copy with a cleaner workflow.
           </p>
-        </div>
 
-        <Link
-          href="/dashboard"
-          className="rounded-2xl border border-white/10 bg-white/5 px-7 py-4 text-base font-medium text-white transition hover:bg-white/10"
-        >
-          Back to dashboard
-        </Link>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link
+              href="/pricing"
+              className="rounded-2xl bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300"
+            >
+              Unlock full tools
+            </Link>
+            <Link
+              href="/dashboard"
+              className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-medium text-white transition hover:bg-white/10"
+            >
+              Back to dashboard
+            </Link>
+          </div>
+        </div>
       </div>
 
       <section className="mt-12 grid gap-6 xl:grid-cols-3">

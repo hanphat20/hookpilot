@@ -4,15 +4,32 @@ import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { supabase } from "../../lib/supabase"
 
+type Plan = "free" | "starter" | "pro"
+
 function PricingContent() {
   const searchParams = useSearchParams()
-  const [currentPlan, setCurrentPlan] = useState("free")
+
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [userId, setUserId] = useState("")
+  const [email, setEmail] = useState("")
+  const [currentPlan, setCurrentPlan] = useState<Plan>("free")
+
+  const success = searchParams.get("success")
+  const canceled = searchParams.get("canceled")
 
   useEffect(() => {
-    const load = async () => {
+    const loadUserAndPlan = async () => {
       const { data } = await supabase.auth.getUser()
-      const uid = data.user?.id
-      if (!uid) return
+      const uid = data.user?.id || ""
+      const userEmail = data.user?.email || ""
+
+      setUserId(uid)
+      setEmail(userEmail)
+
+      if (!uid) {
+        setCurrentPlan("free")
+        return
+      }
 
       const { data: subscription } = await supabase
         .from("subscriptions")
@@ -23,20 +40,78 @@ function PricingContent() {
         .limit(1)
         .maybeSingle()
 
-      if (subscription?.plan) setCurrentPlan(subscription.plan)
+      if (subscription?.plan === "starter" || subscription?.plan === "pro") {
+        setCurrentPlan(subscription.plan)
+      } else {
+        setCurrentPlan("free")
+      }
     }
 
-    load()
-  }, [])
+    loadUserAndPlan()
+  }, [success])
 
-  const success = searchParams.get("success")
-  const canceled = searchParams.get("canceled")
+  const startCheckout = async (priceId: string, planKey: string) => {
+    try {
+      if (!userId || !email) {
+        alert("Please log in first.")
+        return
+      }
+
+      if (!priceId) {
+        alert("Missing Stripe price ID.")
+        return
+      }
+
+      setLoadingPlan(planKey)
+
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          priceId,
+          userId,
+          email,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Checkout failed")
+      }
+
+      window.location.href = data.url
+    } catch (error: any) {
+      alert(error?.message || "Failed to start checkout.")
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
 
   const plans = [
-    { key: "free", name: "Free", price: "$0", desc: "20 generations per day" },
-    { key: "starter", name: "Starter", price: "$9", desc: "Unlimited generations for solo creators" },
-    { key: "pro", name: "Pro", price: "$29", desc: "Advanced usage for teams and agencies" },
-  ]
+    {
+      key: "free",
+      name: "Free",
+      price: "$0",
+      desc: "20 generations per day",
+    },
+    {
+      key: "starter",
+      name: "Starter",
+      price: "$9",
+      desc: "Unlimited generations for solo creators",
+      priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID || "",
+    },
+    {
+      key: "pro",
+      name: "Pro",
+      price: "$29",
+      desc: "Advanced usage for teams and agencies",
+      priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID || "",
+    },
+  ] as const
 
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
@@ -87,15 +162,24 @@ function PricingContent() {
                     <div className="inline-flex rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
                       Current plan
                     </div>
+                  ) : plan.key === "free" ? (
+                    <a
+                      href="/dashboard"
+                      className="block w-full rounded-2xl bg-slate-900 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-slate-800"
+                    >
+                      Get started
+                    </a>
                   ) : (
                     <button
+                      onClick={() => startCheckout(plan.priceId, plan.key)}
+                      disabled={loadingPlan === plan.key || !userId}
                       className={`w-full rounded-2xl px-5 py-3 text-sm font-semibold ${
                         plan.key === "starter"
                           ? "bg-blue-600 text-white hover:bg-blue-500"
                           : "bg-slate-900 text-white hover:bg-slate-800"
-                      }`}
+                      } disabled:opacity-60`}
                     >
-                      {plan.key === "free" ? "Get started" : `Choose ${plan.name}`}
+                      {loadingPlan === plan.key ? "Redirecting..." : `Choose ${plan.name}`}
                     </button>
                   )}
                 </div>

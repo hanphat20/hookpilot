@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase"
 
 type Lang = "en" | "vi"
 type Tone = "Curiosity" | "Pain Point" | "Contrarian" | "Story" | "Number-led"
+type Plan = "free" | "starter" | "pro"
 
 type HistoryItem = {
   id: string
@@ -38,6 +39,11 @@ const dashboardCopy = {
     helper: "Use short, clear input for better output.",
     signedIn: "Signed in as",
     checking: "Checking session...",
+    billing: "Manage billing",
+    billingLoading: "Opening billing...",
+    currentPlan: "Current plan",
+    usage: "Usage access",
+    usageDesc: "Free plan is limited. Paid plans unlock unlimited generations.",
   },
   vi: {
     title: "Dashboard tạo Hook",
@@ -60,6 +66,11 @@ const dashboardCopy = {
     helper: "Nhập ngắn gọn, rõ ràng để ra kết quả tốt hơn.",
     signedIn: "Đăng nhập bởi",
     checking: "Đang kiểm tra phiên đăng nhập...",
+    billing: "Quản lý thanh toán",
+    billingLoading: "Đang mở cổng thanh toán...",
+    currentPlan: "Gói hiện tại",
+    usage: "Quyền sử dụng",
+    usageDesc: "Gói miễn phí bị giới hạn. Gói trả phí mở khóa tạo không giới hạn.",
   },
 } as const
 
@@ -132,6 +143,7 @@ function uid() {
 
 export default function DashboardPage() {
   const [lang, setLang] = useState<Lang>("en")
+  const [userId, setUserId] = useState("")
   const [userEmail, setUserEmail] = useState("")
   const [topic, setTopic] = useState("")
   const [audience, setAudience] = useState("")
@@ -139,8 +151,10 @@ export default function DashboardPage() {
   const [tone, setTone] = useState<Tone>("Curiosity")
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(true)
+  const [billingLoading, setBillingLoading] = useState(false)
   const [hooks, setHooks] = useState<string[]>([])
   const [history, setHistory] = useState<HistoryItem[]>([])
+  const [currentPlan, setCurrentPlan] = useState<Plan>("free")
 
   const t = dashboardCopy[lang]
 
@@ -155,13 +169,31 @@ export default function DashboardPage() {
       } catch {}
     }
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       const sessionUser = data.session?.user
       if (!sessionUser) {
         window.location.href = "/"
         return
       }
+
+      setUserId(sessionUser.id)
       setUserEmail(sessionUser.email ?? "")
+
+      const { data: subscription } = await supabase
+        .from("subscriptions")
+        .select("plan,status")
+        .eq("auth_user_id", sessionUser.id)
+        .in("status", ["active", "trialing"])
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (subscription?.plan === "starter" || subscription?.plan === "pro") {
+        setCurrentPlan(subscription.plan)
+      } else {
+        setCurrentPlan("free")
+      }
+
       setChecking(false)
     })
   }, [])
@@ -226,6 +258,32 @@ export default function DashboardPage() {
     }, 400)
   }
 
+  const openBillingPortal = async () => {
+    try {
+      if (!userId) return
+      setBillingLoading(true)
+
+      const res = await fetch("/api/billing/portal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to open billing portal")
+      }
+
+      window.location.href = data.url
+    } catch (error: any) {
+      alert(error?.message || "Failed to open billing portal")
+    } finally {
+      setBillingLoading(false)
+    }
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
     window.location.href = "/"
@@ -260,9 +318,38 @@ export default function DashboardPage() {
               <a href="/pricing" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                 {t.pricing}
               </a>
+              <button
+                onClick={openBillingPortal}
+                disabled={billingLoading || currentPlan === "free"}
+                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 disabled:opacity-60"
+              >
+                {billingLoading ? t.billingLoading : t.billing}
+              </button>
               <button onClick={signOut} className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400">
                 {t.signout}
               </button>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm text-slate-300">{t.currentPlan}</p>
+              <h3
+                className={`mt-3 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${
+                  currentPlan === "pro"
+                    ? "bg-purple-500/20 text-purple-200"
+                    : currentPlan === "starter"
+                    ? "bg-blue-500/20 text-blue-200"
+                    : "bg-white/10 text-slate-100"
+                }`}
+              >
+                {currentPlan === "pro" ? "Pro" : currentPlan === "starter" ? "Starter" : "Free"}
+              </h3>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:col-span-2">
+              <p className="text-sm text-slate-300">{t.usage}</p>
+              <p className="mt-3 text-sm text-slate-200">{t.usageDesc}</p>
             </div>
           </div>
 

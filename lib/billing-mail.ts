@@ -1,14 +1,9 @@
-import { resend } from "@/lib/resend";
+import { sendResendEmail } from "@/lib/resend";
 
 const FROM = process.env.BILLING_FROM_EMAIL || "HookPilot <billing@example.com>";
 
 async function sendEmail(to: string, subject: string, html: string) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY is missing. Email skipped.");
-    return;
-  }
-
-  await resend.emails.send({
+  await sendResendEmail({
     from: FROM,
     to,
     subject,

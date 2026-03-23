@@ -124,13 +124,21 @@ export default function HomePage() {
     localStorage.setItem("hookpilot_lang", next)
   }
 
-  const handleSignup = async () => {
-    setLoading(true)
-    setMessage("")
-    const { error } = await supabase.auth.signUp({ email, password })
-    setLoading(false)
-    setMessage(error ? error.message : t.signupSuccess)
-  }
+ const handleSignup = async () => {
+  setLoading(true)
+  setMessage("")
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
+
+  setLoading(false)
+  setMessage(error ? error.message : t.signupSuccess)
+}
 
   const handleLogin = async () => {
     setLoading(true)

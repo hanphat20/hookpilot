@@ -1,192 +1,56 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { supabase } from "../../lib/supabase"
+import { useMemo } from "react";
+
+const customerId = "";
+const currentPlan = "free";
 
 export default function DashboardPage() {
-  const [userId, setUserId] = useState("")
-  const [email, setEmail] = useState("")
-  const [topic, setTopic] = useState("")
-  const [audience, setAudience] = useState("")
-  const [hooks, setHooks] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
-  const [billingLoading, setBillingLoading] = useState(false)
-  const [plan, setPlan] = useState("free")
-  const [ready, setReady] = useState(false)
+  const planLabel = useMemo(() => {
+    if (currentPlan === "pro") return "PRO";
+    if (currentPlan === "starter") return "STARTER";
+    return "FREE";
+  }, []);
 
-  useEffect(() => {
-    const init = async () => {
-      const { data } = await supabase.auth.getSession()
-      const user = data.session?.user
-
-      if (!user) {
-        window.location.href = "/"
-        return
-      }
-
-      setUserId(user.id)
-      setEmail(user.email || "")
-      setReady(true)
-    }
-
-    init()
-  }, [])
-
-  const generate = async () => {
-    if (!topic || !audience) return
-
-    setLoading(true)
-
-    const usage = await fetch("/api/usage/check", {
+  const openPortal = async () => {
+    const res = await fetch("/api/stripe/portal", {
       method: "POST",
-      body: JSON.stringify({ userId }),
-    }).then((r) => r.json())
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerId }),
+    });
 
-    if (plan === "free" && usage.count >= 20) {
-      alert("Hết lượt → nâng cấp")
-      window.location.href = "/pricing"
-      return
+    const data = await res.json();
+
+    if (data?.url) {
+      window.location.href = data.url;
     }
-
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      body: JSON.stringify({ topic, audience }),
-    }).then((r) => r.json())
-
-    setHooks(res.hooks || [])
-
-    await fetch("/api/usage/increment", {
-      method: "POST",
-      body: JSON.stringify({ userId }),
-    })
-
-    setLoading(false)
-  }
-
-  const openBillingPortal = async () => {
-    try {
-      setBillingLoading(true)
-
-      const res = await fetch("/api/billing/portal", {
-        method: "POST",
-        body: JSON.stringify({ userId }),
-      })
-
-      const data = await res.json()
-
-      if (!data.url) {
-        alert("Chưa có billing → chưa thanh toán lần nào")
-        return
-      }
-
-      window.location.href = data.url
-    } catch (err) {
-      alert("Billing lỗi")
-    } finally {
-      setBillingLoading(false)
-    }
-  }
-
-  if (!ready) return <div style={{ padding: 40 }}>Loading...</div>
+  };
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.card}>
-        <h2>🚀 HookPilot Dashboard</h2>
-        <p style={{ opacity: 0.7 }}>{email}</p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <p className="text-sm text-gray-500">Gói hiện tại</p>
+        <h1 className="mt-2 text-3xl font-bold text-gray-900">{planLabel}</h1>
+        <p className="mt-3 text-gray-600">
+          Đây là bản chuẩn để bạn đè nhanh. Khi nối DB xong chỉ cần thay currentPlan và customerId bằng dữ liệu thật.
+        </p>
 
-        <div style={styles.inputRow}>
-          <input
-            placeholder="Topic (ví dụ: casino ads)"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            style={styles.input}
-          />
-          <input
-            placeholder="Audience (ví dụ: người mới)"
-            value={audience}
-            onChange={(e) => setAudience(e.target.value)}
-            style={styles.input}
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={generate} style={styles.primaryBtn}>
-            {loading ? "Generating..." : "Generate"}
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a
+            href="/pricing"
+            className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white"
+          >
+            Upgrade
+          </a>
+          <button
+            type="button"
+            onClick={openPortal}
+            className="inline-flex items-center justify-center rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-900"
+          >
+            Manage Billing
           </button>
-
-          <button onClick={openBillingPortal} style={styles.secondaryBtn}>
-            {billingLoading ? "Loading..." : "Billing"}
-          </button>
-        </div>
-
-        <div style={styles.result}>
-          {hooks.map((h, i) => (
-            <div key={i} style={styles.hook}>
-              {h}
-            </div>
-          ))}
         </div>
       </div>
-    </div>
-  )
-}
-
-const styles = {
-  wrapper: {
-    minHeight: "100vh",
-    background: "linear-gradient(135deg,#0f172a,#1e293b)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  card: {
-    width: "100%",
-    maxWidth: 600,
-    background: "#020617",
-    padding: 24,
-    borderRadius: 16,
-    color: "white",
-  },
-  inputRow: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: 10,
-    marginBottom: 16,
-  },
-  input: {
-    padding: 10,
-    borderRadius: 8,
-    border: "1px solid #334155",
-    background: "#020617",
-    color: "white",
-  },
-  primaryBtn: {
-    padding: "10px 16px",
-    background: "#3b82f6",
-    borderRadius: 8,
-    border: "none",
-    color: "white",
-    cursor: "pointer",
-  },
-  secondaryBtn: {
-    padding: "10px 16px",
-    background: "#334155",
-    borderRadius: 8,
-    border: "none",
-    color: "white",
-    cursor: "pointer",
-  },
-  result: {
-    marginTop: 20,
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: 8,
-  },
-  hook: {
-    padding: 10,
-    borderRadius: 8,
-    background: "#0f172a",
-  },
+    </main>
+  );
 }

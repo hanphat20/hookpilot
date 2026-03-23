@@ -1,39 +1,41 @@
-import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const sig = headers().get("stripe-signature")!;
+  const signature = (await headers()).get("stripe-signature");
 
-  let event;
+  if (!signature) {
+    return NextResponse.json({ error: "Thiếu stripe-signature." }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
       body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET || ""
     );
-  } catch (err) {
-    return NextResponse.json({ error: "Webhook error" }, { status: 400 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Webhook signature không hợp lệ.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   switch (event.type) {
     case "checkout.session.completed":
-      const session = event.data.object;
-
-      console.log("PAY SUCCESS:", session.customer_email);
-
-      // 👉 TODO: update DB user plan = paid
-
+      console.log("checkout.session.completed", event.data.object.id);
       break;
-
+    case "customer.subscription.updated":
+      console.log("customer.subscription.updated", event.data.object.id);
+      break;
     case "customer.subscription.deleted":
-      console.log("SUB CANCEL");
-
-      // 👉 TODO: downgrade user
-
+      console.log("customer.subscription.deleted", event.data.object.id);
       break;
+    default:
+      console.log("Unhandled event", event.type);
   }
 
   return NextResponse.json({ received: true });

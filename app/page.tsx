@@ -113,16 +113,11 @@ export default function HomePage() {
     if (savedLang === "en" || savedLang === "vi") setLang(savedLang)
 
     supabase.auth.getSession().then(({ data }) => {
-      const sessionUser = data.session?.user ?? null
-      setUserEmail(sessionUser?.email ?? null)
-      if (sessionUser) {
-        window.location.href = "/dashboard"
-      }
+      setUserEmail(data.session?.user?.email ?? null)
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      const sessionUser = session?.user ?? null
-      setUserEmail(sessionUser?.email ?? null)
+      setUserEmail(session?.user?.email ?? null)
     })
 
     return () => {

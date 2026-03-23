@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { supabase } from "../lib/supabase"
 
 type AuthMode = "login" | "signup"
@@ -21,13 +21,21 @@ const copy = {
     passwordPlaceholder: "Enter password",
     authDesc: "Start free and upgrade when you need more generations.",
     processing: "Processing...",
-    signupSuccess: "Account created. Check your email to confirm your account.",
-    loginSuccess: "Login successful.",
-    dashboard: "Open dashboard",
-    pricing: "View pricing",
+    signupSuccess: "Account created. Please check your email to confirm your account.",
+    loginSuccess: "Login successful. Redirecting...",
+    resend: "Resend confirmation email",
+    resendDone: "Confirmation email sent again. Please check your inbox.",
+    resendError: "Unable to resend confirmation email.",
+    google: "Continue with Google",
     logout: "Logout",
     signedIn: "You are signed in",
-    trustTitle: "Built for creators, affiliates, and media buyers",
+    dashboard: "Open dashboard",
+    pricing: "View pricing",
+    stats: [
+      { value: "10", label: "hooks each generation" },
+      { value: "2", label: "languages" },
+      { value: "20/day", label: "free usage" },
+    ],
     features: [
       {
         title: "Fast hook generation",
@@ -39,13 +47,8 @@ const copy = {
       },
       {
         title: "Optimized workflow",
-        desc: "Simple dashboard, clean pricing, and mobile-ready UI for real use instead of demo feel.",
+        desc: "Clean UI for desktop and mobile with a simple auth flow.",
       },
-    ],
-    stats: [
-      { value: "10", label: "hooks each generation" },
-      { value: "2", label: "languages" },
-      { value: "20/day", label: "free usage" },
     ],
   },
   vi: {
@@ -62,13 +65,21 @@ const copy = {
     passwordPlaceholder: "Nhập mật khẩu",
     authDesc: "Bắt đầu miễn phí và nâng cấp khi cần nhiều lượt tạo hơn.",
     processing: "Đang xử lý...",
-    signupSuccess: "Đã tạo tài khoản. Hãy kiểm tra email để xác nhận.",
-    loginSuccess: "Đăng nhập thành công.",
-    dashboard: "Mở dashboard",
-    pricing: "Xem bảng giá",
+    signupSuccess: "Đã tạo tài khoản. Vui lòng kiểm tra email để xác nhận tài khoản.",
+    loginSuccess: "Đăng nhập thành công. Đang chuyển hướng...",
+    resend: "Gửi lại email xác nhận",
+    resendDone: "Đã gửi lại email xác nhận. Vui lòng kiểm tra hộp thư.",
+    resendError: "Không thể gửi lại email xác nhận.",
+    google: "Tiếp tục với Google",
     logout: "Đăng xuất",
     signedIn: "Bạn đang đăng nhập",
-    trustTitle: "Tối ưu cho creator, affiliate và đội chạy quảng cáo",
+    dashboard: "Mở dashboard",
+    pricing: "Xem bảng giá",
+    stats: [
+      { value: "10", label: "hook mỗi lần tạo" },
+      { value: "2", label: "ngôn ngữ" },
+      { value: "20/ngày", label: "lượt miễn phí" },
+    ],
     features: [
       {
         title: "Tạo hook cực nhanh",
@@ -80,13 +91,8 @@ const copy = {
       },
       {
         title: "Quy trình gọn gàng",
-        desc: "Dashboard đơn giản, pricing rõ ràng và giao diện tối ưu mobile thay vì cảm giác bản demo thô.",
+        desc: "Giao diện tối ưu desktop và mobile, luồng đăng ký rõ ràng.",
       },
-    ],
-    stats: [
-      { value: "10", label: "hook mỗi lần tạo" },
-      { value: "2", label: "ngôn ngữ" },
-      { value: "20/ngày", label: "lượt miễn phí" },
     ],
   },
 } as const
@@ -100,18 +106,23 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
-  const t = copy[lang]
+  const t = useMemo(() => copy[lang], [lang])
 
   useEffect(() => {
     const savedLang = localStorage.getItem("hookpilot_lang") as Lang | null
     if (savedLang === "en" || savedLang === "vi") setLang(savedLang)
 
     supabase.auth.getSession().then(({ data }) => {
-      setUserEmail(data.session?.user?.email ?? null)
+      const sessionUser = data.session?.user ?? null
+      setUserEmail(sessionUser?.email ?? null)
+      if (sessionUser) {
+        window.location.href = "/dashboard"
+      }
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user?.email ?? null)
+      const sessionUser = session?.user ?? null
+      setUserEmail(sessionUser?.email ?? null)
     })
 
     return () => {
@@ -124,28 +135,79 @@ export default function HomePage() {
     localStorage.setItem("hookpilot_lang", next)
   }
 
- const handleSignup = async () => {
-  setLoading(true)
-  setMessage("")
+  const handleSignup = async () => {
+    setLoading(true)
+    setMessage("")
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${window.location.origin}/auth/callback`,
-    },
-  })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
 
-  setLoading(false)
-  setMessage(error ? error.message : t.signupSuccess)
-}
+    setLoading(false)
+    setMessage(error ? error.message : t.signupSuccess)
+  }
 
   const handleLogin = async () => {
     setLoading(true)
     setMessage("")
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
     setLoading(false)
-    setMessage(error ? error.message : t.loginSuccess)
+
+    if (error) {
+      setMessage(error.message)
+      return
+    }
+
+    setMessage(t.loginSuccess)
+    window.location.href = "/dashboard"
+  }
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setMessage(t.resendError)
+      return
+    }
+
+    setLoading(true)
+    setMessage("")
+
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    setLoading(false)
+    setMessage(error ? error.message || t.resendError : t.resendDone)
+  }
+
+  const handleGoogleLogin = async () => {
+    setLoading(true)
+    setMessage("")
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    setLoading(false)
+
+    if (error) {
+      setMessage(error.message)
+    }
   }
 
   const handleLogout = async () => {
@@ -209,18 +271,13 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="mt-8">
-                <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
-                  {t.trustTitle}
-                </p>
-                <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                  {t.features.map((item) => (
-                    <div key={item.title} className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                      <h3 className="text-base font-semibold text-white">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                {t.features.map((item) => (
+                  <div key={item.title} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <h3 className="text-base font-semibold text-white">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{item.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -308,6 +365,24 @@ export default function HomePage() {
                     >
                       {loading ? t.processing : mode === "signup" ? t.signup : t.login}
                     </button>
+
+                    <button
+                      onClick={handleGoogleLogin}
+                      disabled={loading}
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-60"
+                    >
+                      {t.google}
+                    </button>
+
+                    {mode === "signup" ? (
+                      <button
+                        onClick={handleResendConfirmation}
+                        disabled={loading || !email}
+                        className="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                      >
+                        {t.resend}
+                      </button>
+                    ) : null}
                   </div>
 
                   {message ? (

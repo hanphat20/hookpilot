@@ -1,13 +1,22 @@
 import { NextResponse } from "next/server";
 
+let usageCount = 0;
+
 export async function POST(req: Request) {
   const { product } = await req.json();
 
-  const prompt = `Viết kịch bản TikTok bán hàng cho sản phẩm: ${product}.
-Bao gồm:
-- 3 hook viral
-- script 30s
-- CTA`;
+  // SIMPLE LIMIT (demo)
+  if (usageCount > 20) {
+    return NextResponse.json({ error: "Limit reached" }, { status: 403 });
+  }
+
+  usageCount++;
+
+  const prompt = `Write high-converting TikTok selling script for: ${product}.
+Include:
+- 5 viral hooks
+- 30s script
+- strong CTA`;
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -22,7 +31,7 @@ Bao gồm:
   });
 
   const data = await res.json();
-  const text = data.choices?.[0]?.message?.content || "Lỗi AI";
+  const text = data.choices?.[0]?.message?.content || "AI error";
 
   return NextResponse.json({ text });
 }

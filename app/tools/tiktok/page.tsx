@@ -13,26 +13,38 @@ export default function TikTokTool() {
       body: JSON.stringify({ product }),
     });
     const data = await res.json();
-    setOutput(data.text);
+    setOutput(data.text || data.error);
     setLoading(false);
   }
 
+  function copy() {
+    navigator.clipboard.writeText(output);
+    alert("Copied!");
+  }
+
   return (
-    <div className="p-10 text-white">
-      <h1 className="text-3xl mb-6">TikTok Script Generator (PRO)</h1>
+    <div className="p-10 text-white max-w-3xl mx-auto">
+      <h1 className="text-3xl mb-6">TikTok Script Generator</h1>
 
       <input
         value={product}
         onChange={(e) => setProduct(e.target.value)}
-        placeholder="Nhập sản phẩm..."
-        className="p-3 text-black w-full mb-4"
+        placeholder="Enter your product..."
+        className="p-3 text-black w-full mb-4 rounded"
       />
 
-      <button onClick={generate} className="bg-cyan-400 px-4 py-2 text-black">
-        {loading ? "Đang tạo..." : "Generate"}
+      <button onClick={generate} className="bg-cyan-400 px-4 py-2 text-black rounded">
+        {loading ? "Generating..." : "Generate"}
       </button>
 
-      <pre className="mt-6 whitespace-pre-wrap">{output}</pre>
+      {output && (
+        <>
+          <pre className="mt-6 whitespace-pre-wrap bg-black p-4 rounded">{output}</pre>
+          <button onClick={copy} className="mt-3 bg-white text-black px-3 py-2 rounded">
+            Copy
+          </button>
+        </>
+      )}
     </div>
   );
 }

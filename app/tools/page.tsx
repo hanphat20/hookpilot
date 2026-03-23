@@ -8,11 +8,12 @@ export default function ToolsPage() {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-cyan-200">
-              Tool Suite
+              Bộ công cụ
             </div>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">Full tools</h1>
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight">Công cụ làm việc</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-              Bộ công cụ dùng ngay để tạo hook, caption, video script và landing page copy. Tất cả đều có giao diện sạch và dễ bán hơn bản demo cũ.
+              Bộ công cụ dùng ngay để tạo hook, nội dung bán hàng, video script và khung landing page.
+              Giao diện đã được Việt hóa rõ ràng hơn để dễ dùng và dễ bán.
             </p>
           </div>
 
@@ -20,28 +21,28 @@ export default function ToolsPage() {
             href="/dashboard"
             className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/10"
           >
-            Back to dashboard
+            Quay lại bảng điều khiển
           </Link>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
           <ToolCard
             href="/tools/content"
-            title="AI Content Generator"
+            title="Tạo nội dung bằng AI"
             badge="Starter"
-            description="Tạo hook, caption, CTA và video script từ keyword, platform và mục tiêu chiến dịch."
+            description="Tạo hook, caption, lời kêu gọi hành động và kịch bản video từ từ khóa, nền tảng và mục tiêu chiến dịch."
           />
           <ToolCard
             href="/tools/hooks"
-            title="Viral Hook Generator"
-            badge="Free"
-            description="Sinh ra nhiều câu mở đầu đánh mạnh vào cảm xúc, lợi ích hoặc nỗi đau theo từng ngách."
+            title="Tạo hook viral"
+            badge="Miễn phí"
+            description="Sinh nhiều câu mở đầu đánh vào cảm xúc, nỗi đau hoặc lợi ích theo từng ngách cụ thể."
           />
           <ToolCard
             href="/tools/landing"
-            title="Landing Page Generator"
+            title="Tạo nội dung landing page"
             badge="Pro"
-            description="Tạo khung nội dung landing page theo offer, brand và CTA để đưa sang code nhanh hơn."
+            description="Tạo khung nội dung landing page theo thương hiệu, ưu đãi và lời kêu gọi hành động để đưa sang code nhanh hơn."
           />
         </div>
       </div>

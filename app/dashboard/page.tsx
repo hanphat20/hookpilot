@@ -15,16 +15,17 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div className="max-w-2xl">
               <div className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-cyan-200">
-                HookPilot Control Center
+                Trung tâm điều khiển HookPilot
               </div>
-              <h1 className="text-4xl font-semibold tracking-tight">Dashboard</h1>
+              <h1 className="text-4xl font-semibold tracking-tight">Bảng điều khiển</h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
-                Quản lý gói dịch vụ, mở nhanh các công cụ tạo nội dung và landing page, theo dõi quyền truy cập theo plan.
+                Quản lý gói dịch vụ, truy cập nhanh các công cụ tạo nội dung và landing page,
+                đồng thời theo dõi quyền sử dụng theo từng gói.
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Current plan</div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Gói hiện tại</div>
                   <div className="mt-1 text-lg font-semibold">{PLAN_LABELS[currentPlan]}</div>
                 </div>
 
@@ -32,7 +33,7 @@ export default function DashboardPage() {
                   href="/pricing"
                   className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/10"
                 >
-                  Upgrade plan
+                  Nâng cấp gói
                 </Link>
 
                 <OpenToolsButton />
@@ -41,13 +42,13 @@ export default function DashboardPage() {
 
             <div className="grid w-full max-w-md grid-cols-2 gap-3">
               <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
-                <div className="text-sm text-slate-400">Content</div>
-                <div className="mt-2 text-2xl font-semibold">3 Tools</div>
-                <div className="mt-2 text-sm text-slate-300">Scripts, hooks, landing copy</div>
+                <div className="text-sm text-slate-400">Công cụ</div>
+                <div className="mt-2 text-2xl font-semibold">3 mục</div>
+                <div className="mt-2 text-sm text-slate-300">Hook, nội dung, landing page</div>
               </div>
               <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
-                <div className="text-sm text-slate-400">Status</div>
-                <div className="mt-2 text-2xl font-semibold">Ready</div>
+                <div className="text-sm text-slate-400">Trạng thái</div>
+                <div className="mt-2 text-2xl font-semibold">Sẵn sàng</div>
                 <div className="mt-2 text-sm text-slate-300">Có thể dùng ngay</div>
               </div>
             </div>
@@ -56,14 +57,14 @@ export default function DashboardPage() {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
           <article className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
-            <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Workspace</div>
+            <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Tài khoản</div>
             <h2 className="mt-3 text-xl font-semibold">Quản lý tài khoản</h2>
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              Theo dõi gói hiện tại và nâng cấp nhanh khi cần mở khóa nhiều giới hạn hơn.
+              Theo dõi gói hiện tại và nâng cấp nhanh khi cần mở thêm tính năng hoặc giới hạn sử dụng.
             </p>
             <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Current plan</span>
+                <span className="text-slate-400">Gói đang dùng</span>
                 <span className="font-semibold text-white">{PLAN_LABELS[currentPlan]}</span>
               </div>
             </div>
@@ -71,21 +72,21 @@ export default function DashboardPage() {
 
           <article className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
             <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Starter</div>
-            <h2 className="mt-3 text-xl font-semibold">Starter features</h2>
+            <h2 className="mt-3 text-xl font-semibold">Tính năng gói Starter</h2>
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              Mở khóa xuất nội dung cơ bản, workflow tạo caption và số lượt dùng cao hơn.
+              Mở khóa xuất nội dung cơ bản, quy trình tạo caption nhanh và số lượt dùng cao hơn.
             </p>
             <div className="mt-6">
               {starterUnlocked ? (
                 <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-sm font-medium text-emerald-200">
-                  Unlocked
+                  Đã mở khóa
                 </span>
               ) : (
                 <Link
                   href="/pricing"
                   className="rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-sm font-medium text-amber-100"
                 >
-                  Upgrade to Starter
+                  Nâng cấp lên Starter
                 </Link>
               )}
             </div>
@@ -93,21 +94,21 @@ export default function DashboardPage() {
 
           <article className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6">
             <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Pro</div>
-            <h2 className="mt-3 text-xl font-semibold">Pro features</h2>
+            <h2 className="mt-3 text-xl font-semibold">Tính năng gói Pro</h2>
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              Mở khóa landing generator nâng cao, export đầy đủ và workflow nhiều chiến dịch.
+              Mở khóa tạo landing page nâng cao, xuất nội dung đầy đủ và hỗ trợ nhiều chiến dịch hơn.
             </p>
             <div className="mt-6">
               {proUnlocked ? (
                 <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-sm font-medium text-emerald-200">
-                  Unlocked
+                  Đã mở khóa
                 </span>
               ) : (
                 <Link
                   href="/pricing"
                   className="rounded-full border border-rose-300/20 bg-rose-300/10 px-3 py-1 text-sm font-medium text-rose-100"
                 >
-                  Upgrade to Pro
+                  Nâng cấp lên Pro
                 </Link>
               )}
             </div>
@@ -117,10 +118,10 @@ export default function DashboardPage() {
         <section className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Quick access</div>
-              <h2 className="mt-2 text-2xl font-semibold">Đi vào tool thật từ đây</h2>
+              <div className="text-sm uppercase tracking-[0.18em] text-slate-400">Truy cập nhanh</div>
+              <h2 className="mt-2 text-2xl font-semibold">Đi thẳng vào bộ công cụ</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-                Không còn dashboard rỗng. Từ đây bạn có thể vào bộ công cụ tạo hook, content và landing page.
+                Từ đây bạn có thể mở bộ công cụ tạo hook, nội dung quảng cáo và khung landing page mà không cần qua màn hình trống.
               </p>
             </div>
 
@@ -128,7 +129,7 @@ export default function DashboardPage() {
               href="/tools"
               className="inline-flex items-center justify-center rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
             >
-              Open full tool suite
+              Mở toàn bộ công cụ
             </Link>
           </div>
         </section>

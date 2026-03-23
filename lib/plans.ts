@@ -1,9 +1,9 @@
 export type Plan = "free" | "starter" | "pro";
 
 export const PLAN_LABELS: Record<Plan, string> = {
-  free: "FREE",
-  starter: "STARTER",
-  pro: "PRO",
+  free: "Miễn phí",
+  starter: "Gói Starter",
+  pro: "Gói Pro",
 };
 
 export function canUseStarterFeatures(plan: Plan): boolean {

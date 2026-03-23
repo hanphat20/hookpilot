@@ -22,7 +22,7 @@ export function ToolCard({ href, title, description, badge }: ToolCardProps) {
         ) : null}
       </div>
       <p className="text-sm leading-6 text-slate-300">{description}</p>
-      <div className="mt-6 text-sm font-medium text-cyan-300">Open tool →</div>
+      <div className="mt-6 text-sm font-medium text-cyan-300">Mở công cụ →</div>
     </Link>
   );
 }

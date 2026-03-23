@@ -81,18 +81,23 @@ const toneTemplates: Record<
       vi: (topic, audience) => `Vẫn đang loay hoay để ${topic} hiệu quả với ${audience}? Bắt đầu từ đây.`,
     },
     {
-      en: (topic, audience) => `The biggest mistake ${audience} make with ${topic} is easier to fix than you think.`,
-      vi: (topic, audience) => `Sai lầm lớn nhất mà ${audience} mắc phải với ${topic} thật ra dễ sửa hơn bạn nghĩ.`,
+      en: (topic, audience) =>
+        `The biggest mistake ${audience} make with ${topic} is easier to fix than you think.`,
+      vi: (topic, audience) =>
+        `Sai lầm lớn nhất mà ${audience} mắc phải với ${topic} thật ra dễ sửa hơn bạn nghĩ.`,
     },
   ],
   Contrarian: [
     {
-      en: (topic, audience) => `Stop copying everyone else: ${topic} works better for ${audience} when you do this instead.`,
+      en: (topic, audience) =>
+        `Stop copying everyone else: ${topic} works better for ${audience} when you do this instead.`,
       vi: (topic, audience) => `Đừng làm giống số đông: ${topic} sẽ hiệu quả hơn với ${audience} nếu làm cách này.`,
     },
     {
-      en: (topic, audience) => `What if the usual advice about ${topic} is exactly why ${audience} are losing conversions?`,
-      vi: (topic, audience) => `Điều gì xảy ra nếu lời khuyên quen thuộc về ${topic} chính là lý do ${audience} mất chuyển đổi?`,
+      en: (topic, audience) =>
+        `What if the usual advice about ${topic} is exactly why ${audience} are losing conversions?`,
+      vi: (topic, audience) =>
+        `Điều gì xảy ra nếu lời khuyên quen thuộc về ${topic} chính là lý do ${audience} mất chuyển đổi?`,
     },
   ],
   Story: [
@@ -101,8 +106,10 @@ const toneTemplates: Record<
       vi: (topic, audience) => `Chúng tôi đã thử ${topic} cho ${audience}, và kết quả đầu tiên khiến ai cũng bất ngờ.`,
     },
     {
-      en: (topic, audience) => `A simple change in ${topic} helped ${audience} get a stronger response almost immediately.`,
-      vi: (topic, audience) => `Một thay đổi nhỏ trong ${topic} đã giúp ${audience} có phản hồi tốt hơn gần như ngay lập tức.`,
+      en: (topic, audience) =>
+        `A simple change in ${topic} helped ${audience} get a stronger response almost immediately.`,
+      vi: (topic, audience) =>
+        `Một thay đổi nhỏ trong ${topic} đã giúp ${audience} có phản hồi tốt hơn gần như ngay lập tức.`,
     },
   ],
   "Number-led": [
@@ -146,12 +153,7 @@ export default function DashboardPage() {
     }
 
     supabase.auth.getSession().then(({ data }) => {
-      const sessionUser = data.session?.user
-      if (!sessionUser) {
-        window.location.href = "/"
-        return
-      }
-      setUserEmail(sessionUser.email ?? "")
+      setUserEmail(data.session?.user?.email ?? "")
     })
   }, [])
 
@@ -235,13 +237,22 @@ export default function DashboardPage() {
               <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
                 {t.signedIn}: <span className="font-semibold text-white">{userEmail || "Guest"}</span>
               </div>
-              <a href="/" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+              <a
+                href="/"
+                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+              >
                 {t.home}
               </a>
-              <a href="/pricing" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+              <a
+                href="/pricing"
+                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+              >
                 {t.pricing}
               </a>
-              <button onClick={signOut} className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400">
+              <button
+                onClick={signOut}
+                className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400"
+              >
                 {t.signout}
               </button>
             </div>

@@ -19,8 +19,7 @@ type HistoryItem = {
 const dashboardCopy = {
   en: {
     title: "Hook Generator Dashboard",
-    subtitle:
-      "Generate clean hook angles for content, paid ads, affiliate creatives, and landing pages.",
+    subtitle: "Generate clean hook angles for content, paid ads, affiliate creatives, and landing pages.",
     topic: "Topic or offer",
     topicPlaceholder: "Example: Online casino welcome bonus for new users",
     audience: "Audience",
@@ -41,8 +40,7 @@ const dashboardCopy = {
   },
   vi: {
     title: "Dashboard tạo Hook",
-    subtitle:
-      "Tạo hook rõ ràng cho content, quảng cáo trả phí, affiliate và landing page.",
+    subtitle: "Tạo hook rõ ràng cho content, quảng cáo trả phí, affiliate và landing page.",
     topic: "Chủ đề hoặc ưu đãi",
     topicPlaceholder: "Ví dụ: Thưởng chào mừng casino online cho người mới",
     audience: "Tệp khách hàng",
@@ -73,10 +71,8 @@ const toneTemplates: Record<
       vi: (topic, audience) => `Vì sao ${audience} đang bắt đầu chú ý mạnh tới ${topic}?`,
     },
     {
-      en: (topic, audience) =>
-        `Most ${audience} ignore this angle about ${topic} until it is too late.`,
-      vi: (topic, audience) =>
-        `Đa số ${audience} đều bỏ qua góc này của ${topic} cho tới khi quá muộn.`,
+      en: (topic, audience) => `Most ${audience} ignore this angle about ${topic} until it is too late.`,
+      vi: (topic, audience) => `Đa số ${audience} đều bỏ qua góc này của ${topic} cho tới khi quá muộn.`,
     },
   ],
   "Pain Point": [
@@ -85,38 +81,28 @@ const toneTemplates: Record<
       vi: (topic, audience) => `Vẫn đang loay hoay để ${topic} hiệu quả với ${audience}? Bắt đầu từ đây.`,
     },
     {
-      en: (topic, audience) =>
-        `The biggest mistake ${audience} make with ${topic} is easier to fix than you think.`,
-      vi: (topic, audience) =>
-        `Sai lầm lớn nhất mà ${audience} mắc phải với ${topic} thật ra dễ sửa hơn bạn nghĩ.`,
+      en: (topic, audience) => `The biggest mistake ${audience} make with ${topic} is easier to fix than you think.`,
+      vi: (topic, audience) => `Sai lầm lớn nhất mà ${audience} mắc phải với ${topic} thật ra dễ sửa hơn bạn nghĩ.`,
     },
   ],
   Contrarian: [
     {
-      en: (topic, audience) =>
-        `Stop copying everyone else: ${topic} works better for ${audience} when you do this instead.`,
-      vi: (topic, audience) =>
-        `Đừng làm giống số đông: ${topic} sẽ hiệu quả hơn với ${audience} nếu làm cách này.`,
+      en: (topic, audience) => `Stop copying everyone else: ${topic} works better for ${audience} when you do this instead.`,
+      vi: (topic, audience) => `Đừng làm giống số đông: ${topic} sẽ hiệu quả hơn với ${audience} nếu làm cách này.`,
     },
     {
-      en: (topic, audience) =>
-        `What if the usual advice about ${topic} is exactly why ${audience} are losing conversions?`,
-      vi: (topic, audience) =>
-        `Điều gì xảy ra nếu lời khuyên quen thuộc về ${topic} chính là lý do ${audience} mất chuyển đổi?`,
+      en: (topic, audience) => `What if the usual advice about ${topic} is exactly why ${audience} are losing conversions?`,
+      vi: (topic, audience) => `Điều gì xảy ra nếu lời khuyên quen thuộc về ${topic} chính là lý do ${audience} mất chuyển đổi?`,
     },
   ],
   Story: [
     {
-      en: (topic, audience) =>
-        `We tested ${topic} for ${audience}, and the first result surprised everyone.`,
-      vi: (topic, audience) =>
-        `Chúng tôi đã thử ${topic} cho ${audience}, và kết quả đầu tiên khiến ai cũng bất ngờ.`,
+      en: (topic, audience) => `We tested ${topic} for ${audience}, and the first result surprised everyone.`,
+      vi: (topic, audience) => `Chúng tôi đã thử ${topic} cho ${audience}, và kết quả đầu tiên khiến ai cũng bất ngờ.`,
     },
     {
-      en: (topic, audience) =>
-        `A simple change in ${topic} helped ${audience} get a stronger response almost immediately.`,
-      vi: (topic, audience) =>
-        `Một thay đổi nhỏ trong ${topic} đã giúp ${audience} có phản hồi tốt hơn gần như ngay lập tức.`,
+      en: (topic, audience) => `A simple change in ${topic} helped ${audience} get a stronger response almost immediately.`,
+      vi: (topic, audience) => `Một thay đổi nhỏ trong ${topic} đã giúp ${audience} có phản hồi tốt hơn gần như ngay lập tức.`,
     },
   ],
   "Number-led": [
@@ -125,10 +111,8 @@ const toneTemplates: Record<
       vi: (topic, audience) => `7 góc hook giúp ${topic} đánh trúng ${audience} hơn.`,
     },
     {
-      en: (topic, audience) =>
-        `3 reasons ${audience} respond faster when ${topic} is framed this way.`,
-      vi: (topic, audience) =>
-        `3 lý do ${audience} phản hồi nhanh hơn khi ${topic} được triển khai theo cách này.`,
+      en: (topic, audience) => `3 reasons ${audience} respond faster when ${topic} is framed this way.`,
+      vi: (topic, audience) => `3 lý do ${audience} phản hồi nhanh hơn khi ${topic} được triển khai theo cách này.`,
     },
   ],
 }
@@ -162,7 +146,12 @@ export default function DashboardPage() {
     }
 
     supabase.auth.getSession().then(({ data }) => {
-      setUserEmail(data.session?.user?.email ?? "")
+      const sessionUser = data.session?.user
+      if (!sessionUser) {
+        window.location.href = "/"
+        return
+      }
+      setUserEmail(sessionUser.email ?? "")
     })
   }, [])
 
@@ -223,7 +212,7 @@ export default function DashboardPage() {
       setHistory(nextHistory)
       localStorage.setItem("hookpilot_history", JSON.stringify(nextHistory))
       setLoading(false)
-    }, 500)
+    }, 400)
   }
 
   const signOut = async () => {
@@ -239,31 +228,20 @@ export default function DashboardPage() {
             <div>
               <p className="text-sm font-medium text-blue-300">HookPilot</p>
               <h1 className="mt-2 text-3xl font-semibold text-white sm:text-4xl">{t.title}</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
-                {t.subtitle}
-              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">{t.subtitle}</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
                 {t.signedIn}: <span className="font-semibold text-white">{userEmail || "Guest"}</span>
               </div>
-              <a
-                href="/"
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
-              >
+              <a href="/" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                 {t.home}
               </a>
-              <a
-                href="/pricing"
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
-              >
+              <a href="/pricing" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                 {t.pricing}
               </a>
-              <button
-                onClick={signOut}
-                className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400"
-              >
+              <button onClick={signOut} className="rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400">
                 {t.signout}
               </button>
             </div>
@@ -367,9 +345,7 @@ export default function DashboardPage() {
                       <div key={item.id} className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
                         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                           <div className="text-sm font-semibold text-white">{item.topic}</div>
-                          <div className="text-xs text-slate-400">
-                            {new Date(item.createdAt).toLocaleString()}
-                          </div>
+                          <div className="text-xs text-slate-400">{new Date(item.createdAt).toLocaleString()}</div>
                         </div>
                         <div className="mt-2 text-xs uppercase tracking-[0.15em] text-slate-400">
                           {item.audience} · {item.language} · {item.tone}

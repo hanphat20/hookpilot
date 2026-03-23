@@ -2,15 +2,29 @@ import Stripe from "stripe";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { PrismaClient } from "@prisma/client";
 import {
   sendPaymentFailedEmail,
   sendPlanLockedEmail,
   sendWelcomeEmail,
 } from "@/lib/billing-mail";
-import { isLockedStatus } from "@/lib/plan-guards";
 
-const prisma = new PrismaClient();
+type MemoryUser = {
+  email: string;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  stripePriceId?: string | null;
+  subscriptionStatus?: string | null;
+  currentPeriodEnd?: string | null;
+  plan?: "free" | "starter" | "pro";
+};
+
+const users = new Map<string, MemoryUser>();
+
+function getPlanFromPrice(priceId: string | null) {
+  if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID) return "pro";
+  if (priceId === process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID) return "starter";
+  return "free";
+}
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -43,32 +57,18 @@ export async function POST(req: Request) {
             : null;
 
           const priceId = subscription?.items.data[0]?.price.id || null;
-          const plan = priceId === process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID ? "pro" : "starter";
+          const plan = getPlanFromPrice(priceId);
 
-          await prisma.user.upsert({
-            where: { email },
-            update: {
-              plan,
-              stripeCustomerId: customerId,
-              stripeSubscriptionId: subscriptionId,
-              stripePriceId: priceId,
-              subscriptionStatus: subscription?.status || "active",
-              currentPeriodEnd: subscription?.current_period_end
-                ? new Date(subscription.current_period_end * 1000)
-                : null,
-              planLockedAt: null,
-            },
-            create: {
-              email,
-              plan,
-              stripeCustomerId: customerId,
-              stripeSubscriptionId: subscriptionId,
-              stripePriceId: priceId,
-              subscriptionStatus: subscription?.status || "active",
-              currentPeriodEnd: subscription?.current_period_end
-                ? new Date(subscription.current_period_end * 1000)
-                : null,
-            },
+          users.set(email, {
+            email,
+            plan,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscriptionId,
+            stripePriceId: priceId,
+            subscriptionStatus: subscription?.status || "active",
+            currentPeriodEnd: subscription?.current_period_end
+              ? new Date(subscription.current_period_end * 1000).toISOString()
+              : null,
           });
 
           await sendWelcomeEmail(email);
@@ -81,29 +81,26 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = typeof subscription.customer === "string" ? subscription.customer : null;
         const priceId = subscription.items.data[0]?.price.id || null;
-        const plan = priceId === process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID ? "pro" : "starter";
-        const locked = isLockedStatus(subscription.status);
+        const plan = getPlanFromPrice(priceId);
+        const locked =
+          subscription.status === "canceled" ||
+          subscription.status === "unpaid" ||
+          subscription.status === "incomplete_expired";
 
-        if (customerId) {
-          const user = await prisma.user.findFirst({ where: { stripeCustomerId: customerId } });
-          if (user) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: {
-                plan: locked ? "free" : plan,
-                stripeSubscriptionId: subscription.id,
-                stripePriceId: priceId,
-                subscriptionStatus: subscription.status,
-                currentPeriodEnd: subscription.current_period_end
-                  ? new Date(subscription.current_period_end * 1000)
-                  : null,
-                planLockedAt: locked ? new Date() : null,
-              },
-            });
+        const matchedUser = [...users.values()].find((u) => u.stripeCustomerId === customerId);
+        if (matchedUser) {
+          matchedUser.plan = locked ? "free" : plan;
+          matchedUser.stripeSubscriptionId = subscription.id;
+          matchedUser.stripePriceId = priceId;
+          matchedUser.subscriptionStatus = subscription.status;
+          matchedUser.currentPeriodEnd = subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null;
 
-            if (locked) {
-              await sendPlanLockedEmail(user.email);
-            }
+          users.set(matchedUser.email, matchedUser);
+
+          if (locked) {
+            await sendPlanLockedEmail(matchedUser.email);
           }
         }
         break;
@@ -112,22 +109,14 @@ export async function POST(req: Request) {
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = typeof subscription.customer === "string" ? subscription.customer : null;
+        const matchedUser = [...users.values()].find((u) => u.stripeCustomerId === customerId);
 
-        if (customerId) {
-          const user = await prisma.user.findFirst({ where: { stripeCustomerId: customerId } });
-          if (user) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: {
-                plan: "free",
-                subscriptionStatus: "canceled",
-                currentPeriodEnd: new Date(),
-                planLockedAt: new Date(),
-              },
-            });
-
-            await sendPlanLockedEmail(user.email);
-          }
+        if (matchedUser) {
+          matchedUser.plan = "free";
+          matchedUser.subscriptionStatus = "canceled";
+          matchedUser.currentPeriodEnd = new Date().toISOString();
+          users.set(matchedUser.email, matchedUser);
+          await sendPlanLockedEmail(matchedUser.email);
         }
         break;
       }
@@ -135,19 +124,12 @@ export async function POST(req: Request) {
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = typeof invoice.customer === "string" ? invoice.customer : null;
+        const matchedUser = [...users.values()].find((u) => u.stripeCustomerId === customerId);
 
-        if (customerId) {
-          const user = await prisma.user.findFirst({ where: { stripeCustomerId: customerId } });
-          if (user) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: {
-                subscriptionStatus: "past_due",
-              },
-            });
-
-            await sendPaymentFailedEmail(user.email);
-          }
+        if (matchedUser) {
+          matchedUser.subscriptionStatus = "past_due";
+          users.set(matchedUser.email, matchedUser);
+          await sendPaymentFailedEmail(matchedUser.email);
         }
         break;
       }

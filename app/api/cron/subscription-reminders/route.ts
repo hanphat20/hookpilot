@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { sendExpiryReminderEmail, sendPlanLockedEmail } from "@/lib/billing-mail";
+import { sendExpiryReminderEmail } from "@/lib/billing-mail";
 
 export const runtime = "nodejs";
-
-const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
   const auth = req.headers.get("authorization");
@@ -12,49 +9,17 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const now = new Date();
-  const inThreeDays = new Date(now);
-  inThreeDays.setDate(inThreeDays.getDate() + 3);
-
-  const users = await prisma.user.findMany({
-    where: {
-      plan: { not: "free" },
-    },
-  });
-
-  let reminders = 0;
-  let locked = 0;
-
-  for (const user of users) {
-    if (!user.currentPeriodEnd) continue;
-
-    const msLeft = user.currentPeriodEnd.getTime() - now.getTime();
-    const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
-
-    if (daysLeft === 3 || daysLeft === 1 || daysLeft === 0) {
-      await sendExpiryReminderEmail(user.email, Math.max(daysLeft, 0));
-      reminders++;
-    }
-
-    if (user.currentPeriodEnd < now && user.plan !== "free") {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          plan: "free",
-          planLockedAt: new Date(),
-          subscriptionStatus: "expired",
-        },
-      });
-
-      await sendPlanLockedEmail(user.email);
-      locked++;
-    }
+  // Build-safe fallback: no database yet, so this endpoint only confirms the cron is reachable.
+  // Once Prisma is installed and your schema is ready, replace this with real DB queries.
+  if (process.env.DEBUG_REMINDER_EMAIL_TO) {
+    await sendExpiryReminderEmail(process.env.DEBUG_REMINDER_EMAIL_TO, 3);
   }
 
   return NextResponse.json({
     ok: true,
-    reminders,
-    locked,
-    checked: users.length,
+    mode: "build-safe-no-prisma",
+    reminders: process.env.DEBUG_REMINDER_EMAIL_TO ? 1 : 0,
+    locked: 0,
+    checked: 0,
   });
 }

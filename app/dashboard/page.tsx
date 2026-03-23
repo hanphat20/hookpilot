@@ -235,55 +235,41 @@ export default function DashboardPage() {
   }, [topic, audience, tone, lang])
 
   const generateHooks = async () => {
-    if (!topic.trim() || !audience.trim()) return
-    setLoading(true)
+  if (!topic || !audience) return
 
-    setTimeout(() => {
-      setHooks(helperHooks)
+  setLoading(true)
 
-      const newItem: HistoryItem = {
-        id: uid(),
-        createdAt: new Date().toISOString(),
-        topic: topic.trim(),
-        audience: audience.trim(),
-        language,
-        tone,
-        hooks: helperHooks,
-      }
+  // check usage
+  const res = await fetch("/api/usage/check", {
+    method: "POST",
+    body: JSON.stringify({ userId }),
+  })
 
-      const nextHistory = [newItem, ...history].slice(0, 8)
-      setHistory(nextHistory)
-      localStorage.setItem("hookpilot_history", JSON.stringify(nextHistory))
-      setLoading(false)
-    }, 400)
+  const data = await res.json()
+
+  if (currentPlan === "free" && data.count >= 20) {
+    alert("🚫 Hết lượt miễn phí hôm nay → nâng cấp để tiếp tục")
+    window.location.href = "/pricing"
+    return
   }
 
-  const openBillingPortal = async () => {
-    try {
-      if (!userId) return
-      setBillingLoading(true)
+  // generate AI
+  const aiRes = await fetch("/api/generate", {
+    method: "POST",
+    body: JSON.stringify({ topic, audience }),
+  })
 
-      const res = await fetch("/api/billing/portal", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
-      })
+  const aiData = await aiRes.json()
+  setHooks(aiData.hooks)
 
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to open billing portal")
-      }
+  // tăng usage
+  await fetch("/api/usage/increment", {
+    method: "POST",
+    body: JSON.stringify({ userId }),
+  })
 
-      window.location.href = data.url
-    } catch (error: any) {
-      alert(error?.message || "Failed to open billing portal")
-    } finally {
-      setBillingLoading(false)
-    }
-  }
-
+  setLoading(false)
+}
   const signOut = async () => {
     await supabase.auth.signOut()
     window.location.href = "/"

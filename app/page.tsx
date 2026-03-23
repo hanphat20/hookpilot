@@ -70,4 +70,249 @@ const copy = {
     signedIn: "Bạn đang đăng nhập",
     trustTitle: "Tối ưu cho creator, affiliate và đội chạy quảng cáo",
     features: [
+      {
+        title: "Tạo hook cực nhanh",
+        desc: "Sinh nhiều góc hook trong vài giây cho video ngắn, quảng cáo và trang bán hàng.",
+      },
+      {
+        title: "Sinh theo framework",
+        desc: "Dùng hook tò mò, nỗi đau, ngược chiều, con số và storytelling để test tốt hơn.",
+      },
+      {
+        title: "Quy trình gọn gàng",
+        desc: "Dashboard đơn giản, pricing rõ ràng và giao diện tối ưu mobile thay vì cảm giác bản demo thô.",
+      },
+    ],
+    stats: [
+      { value: "10", label: "hook mỗi lần tạo" },
+      { value: "2", label: "ngôn ngữ" },
+      { value: "20/ngày", label: "lượt miễn phí" },
+    ],
+  },
+} as const
+
+export default function HomePage() {
+  const [mode, setMode] = useState<AuthMode>("login")
+  const [lang, setLang] = useState<Lang>("en")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+
+  const t = copy[lang]
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem("hookpilot_lang") as Lang | null
+    if (savedLang === "en" || savedLang === "vi") setLang(savedLang)
+
+    supabase.auth.getSession().then(({ data }) => {
+      setUserEmail(data.session?.user?.email ?? null)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null)
+    })
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [])
+
+  const changeLang = (next: Lang) => {
+    setLang(next)
+    localStorage.setItem("hookpilot_lang", next)
+  }
+
+  const handleSignup = async () => {
+    setLoading(true)
+    setMessage("")
+    const { error } = await supabase.auth.signUp({ email, password })
+    setLoading(false)
+    setMessage(error ? error.message : t.signupSuccess)
+  }
+
+  const handleLogin = async () => {
+    setLoading(true)
+    setMessage("")
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    setMessage(error ? error.message : t.loginSuccess)
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUserEmail(null)
+    setMessage("")
+  }
+
+  return (
+    <main className="min-h-screen px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="rounded-[32px] border border-white/10 bg-slate-950/80 p-4 shadow-2xl shadow-slate-950/30 backdrop-blur sm:p-6 lg:p-8">
+          <header className="flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <a href="/" className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+                HookPilot
+              </a>
+              <p className="mt-2 max-w-2xl text-sm text-slate-300 sm:text-base">{t.heroDesc}</p>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1">
+              <button
+                onClick={() => changeLang("en")}
+                className={`rounded-full px-3 py-2 text-sm ${
+                  lang === "en" ? "bg-white text-slate-900" : "text-slate-300"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => changeLang("vi")}
+                className={`rounded-full px-3 py-2 text-sm ${
+                  lang === "vi" ? "bg-white text-slate-900" : "text-slate-300"
+                }`}
+              >
+                VI
+              </button>
+            </div>
+          </header>
+
+          <section className="grid gap-6 pt-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+            <div>
+              <div className="inline-flex rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm font-medium text-blue-200">
+                {t.badge}
+              </div>
+
+              <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+                {t.heroTitle}
+              </h1>
+
+              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+                {t.heroDesc}
+              </p>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {t.stats.map((item) => (
+                  <div key={item.label} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-2xl font-semibold text-white">{item.value}</div>
+                    <div className="mt-1 text-sm text-slate-300">{item.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8">
+                <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+                  {t.trustTitle}
+                </p>
+                <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                  {t.features.map((item) => (
+                    <div key={item.title} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                      <h3 className="text-base font-semibold text-white">{item.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-white/10 bg-white/10 p-4 shadow-xl shadow-blue-950/20 sm:p-6">
+              {userEmail ? (
+                <div>
+                  <p className="text-sm font-medium text-emerald-300">{t.signedIn}</p>
+                  <h2 className="mt-3 break-words text-2xl font-semibold text-white">{userEmail}</h2>
+
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                    <a
+                      href="/dashboard"
+                      className="rounded-2xl bg-blue-500 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-blue-400"
+                    >
+                      {t.dashboard}
+                    </a>
+                    <a
+                      href="/pricing"
+                      className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-white/10"
+                    >
+                      {t.pricing}
+                    </a>
+                  </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="mt-4 w-full rounded-2xl border border-white/10 bg-slate-900/60 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+                  >
+                    {t.logout}
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex gap-2 rounded-full bg-slate-900/70 p-1">
+                    <button
+                      onClick={() => setMode("login")}
+                      className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
+                        mode === "login" ? "bg-white text-slate-900" : "text-slate-300"
+                      }`}
+                    >
+                      {t.login}
+                    </button>
+                    <button
+                      onClick={() => setMode("signup")}
+                      className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
+                        mode === "signup" ? "bg-white text-slate-900" : "text-slate-300"
+                      }`}
+                    >
+                      {t.signup}
+                    </button>
+                  </div>
+
+                  <h2 className="mt-6 text-2xl font-semibold text-white">
+                    {mode === "signup" ? t.createAccount : t.login}
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-300">{t.authDesc}</p>
+
+                  <div className="mt-6 space-y-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-200">{t.email}</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={t.emailPlaceholder}
+                        className="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-200">{t.password}</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder={t.passwordPlaceholder}
+                        className="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-400"
+                      />
+                    </div>
+
+                    <button
+                      onClick={mode === "signup" ? handleSignup : handleLogin}
+                      disabled={loading}
+                      className="w-full rounded-2xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-400 disabled:opacity-60"
+                    >
+                      {loading ? t.processing : mode === "signup" ? t.signup : t.login}
+                    </button>
+                  </div>
+
+                  {message ? (
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-200">
+                      {message}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  )
 }

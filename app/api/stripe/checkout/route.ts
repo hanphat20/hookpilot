@@ -3,7 +3,7 @@ import { stripe } from "@/lib/stripe";
 
 export async function POST(req: Request) {
   try {
-    const { priceId, email, promotionCode } = await req.json();
+    const { priceId, email } = await req.json();
 
     if (!priceId || !email) {
       return NextResponse.json({ error: "Missing priceId or email" }, { status: 400 });
@@ -14,16 +14,8 @@ export async function POST(req: Request) {
       customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
-      ...(promotionCode
-        ? {
-            discounts: [{ promotion_code: promotionCode }],
-          }
-        : {}),
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?checkout=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?checkout=cancelled`,
-      metadata: {
-        first_order_offer: "FIRST10",
-      },
     });
 
     return NextResponse.json({ url: session.url });

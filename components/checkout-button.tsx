@@ -16,12 +16,12 @@ export function CheckoutButton({ priceId, email, label = "Choose plan" }: Checko
     setError("");
 
     if (!priceId) {
-      setError("Missing Stripe price ID. / Thiếu Stripe price ID.");
+      setError("Missing Stripe price ID.");
       return;
     }
 
     if (!email) {
-      setError("Please enter your email before checkout. / Vui lòng nhập email trước khi thanh toán.");
+      setError("Please enter your email before checkout.");
       return;
     }
 

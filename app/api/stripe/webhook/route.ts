@@ -52,11 +52,13 @@ export async function POST(req: Request) {
         const email = session.customer_details?.email || session.customer_email;
 
         if (email) {
-          const subscription = subscriptionId
+          const rawSubscription = subscriptionId
             ? await stripe.subscriptions.retrieve(subscriptionId)
             : null;
 
-          const priceId = subscription?.items.data[0]?.price.id || null;
+          const subscription = rawSubscription as any;
+          const priceId = subscription?.items?.data?.[0]?.price?.id || null;
+          const currentPeriodEndUnix = subscription?.current_period_end ?? null;
           const plan = getPlanFromPrice(priceId);
 
           users.set(email, {
@@ -66,8 +68,8 @@ export async function POST(req: Request) {
             stripeSubscriptionId: subscriptionId,
             stripePriceId: priceId,
             subscriptionStatus: subscription?.status || "active",
-            currentPeriodEnd: subscription?.current_period_end
-              ? new Date(subscription.current_period_end * 1000).toISOString()
+            currentPeriodEnd: currentPeriodEndUnix
+              ? new Date(currentPeriodEndUnix * 1000).toISOString()
               : null,
           });
 
@@ -78,22 +80,22 @@ export async function POST(req: Request) {
       }
 
       case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as any;
         const customerId = typeof subscription.customer === "string" ? subscription.customer : null;
-        const priceId = subscription.items.data[0]?.price.id || null;
+        const priceId = subscription?.items?.data?.[0]?.price?.id || null;
         const plan = getPlanFromPrice(priceId);
         const locked =
-          subscription.status === "canceled" ||
-          subscription.status === "unpaid" ||
-          subscription.status === "incomplete_expired";
+          subscription?.status === "canceled" ||
+          subscription?.status === "unpaid" ||
+          subscription?.status === "incomplete_expired";
 
         const matchedUser = [...users.values()].find((u) => u.stripeCustomerId === customerId);
         if (matchedUser) {
           matchedUser.plan = locked ? "free" : plan;
           matchedUser.stripeSubscriptionId = subscription.id;
           matchedUser.stripePriceId = priceId;
-          matchedUser.subscriptionStatus = subscription.status;
-          matchedUser.currentPeriodEnd = subscription.current_period_end
+          matchedUser.subscriptionStatus = subscription?.status || null;
+          matchedUser.currentPeriodEnd = subscription?.current_period_end
             ? new Date(subscription.current_period_end * 1000).toISOString()
             : null;
 
@@ -107,7 +109,7 @@ export async function POST(req: Request) {
       }
 
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as any;
         const customerId = typeof subscription.customer === "string" ? subscription.customer : null;
         const matchedUser = [...users.values()].find((u) => u.stripeCustomerId === customerId);
 
@@ -122,7 +124,7 @@ export async function POST(req: Request) {
       }
 
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as any;
         const customerId = typeof invoice.customer === "string" ? invoice.customer : null;
         const matchedUser = [...users.values()].find((u) => u.stripeCustomerId === customerId);
 

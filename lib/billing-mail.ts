@@ -3,12 +3,16 @@ import { sendResendEmail } from "@/lib/resend";
 const FROM = process.env.BILLING_FROM_EMAIL || "HookPilot <billing@example.com>";
 
 async function sendEmail(to: string, subject: string, html: string) {
-  await sendResendEmail({
-    from: FROM,
-    to,
-    subject,
-    html,
-  });
+  try {
+    await sendResendEmail({
+      from: FROM,
+      to,
+      subject,
+      html,
+    });
+  } catch (error) {
+    console.error("billing mail error", error);
+  }
 }
 
 export async function sendWelcomeEmail(to: string, name?: string | null) {
@@ -19,10 +23,7 @@ export async function sendWelcomeEmail(to: string, name?: string | null) {
       <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px">
         <h1 style="margin:0 0 12px;color:#0f172a">Welcome${name ? `, ${name}` : ""}.</h1>
         <p style="font-size:15px;line-height:1.7;color:#334155">
-          Your account is ready. You can now generate TikTok scripts, captions, and landing page copy inside HookPilot.
-        </p>
-        <p style="font-size:15px;line-height:1.7;color:#334155">
-          Upgrade any time to unlock higher usage, better exports, and full landing page workflows.
+          Your account is ready. You can now use HookPilot tools.
         </p>
       </div>
     `
@@ -37,10 +38,7 @@ export async function sendFirstPaymentOfferEmail(to: string, checkoutUrl: string
       <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px">
         <h1 style="margin:0 0 12px;color:#0f172a">Get 10% off your first payment</h1>
         <p style="font-size:15px;line-height:1.7;color:#334155">
-          Use your first-order code at checkout and unlock paid tools at a lower cost.
-        </p>
-        <p style="font-size:15px;line-height:1.7;color:#334155">
-          Suggested code: <strong>FIRST10</strong>
+          Suggested first-order code: <strong>FIRST10</strong>
         </p>
         <p>
           <a href="${checkoutUrl}" style="display:inline-block;background:#22d3ee;color:#082f49;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700">
@@ -65,10 +63,7 @@ export async function sendExpiryReminderEmail(to: string, daysLeft: number) {
       <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px">
         <h1 style="margin:0 0 12px;color:#0f172a">${subject}</h1>
         <p style="font-size:15px;line-height:1.7;color:#334155">
-          To avoid interruption, renew or update your payment method before your billing period ends.
-        </p>
-        <p style="font-size:15px;line-height:1.7;color:#334155">
-          If the subscription expires or becomes unpaid, your account will be locked back to the Free plan automatically.
+          Renew or update your payment method before your billing period ends.
         </p>
       </div>
     `
@@ -83,7 +78,7 @@ export async function sendPaymentFailedEmail(to: string) {
       <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px">
         <h1 style="margin:0 0 12px;color:#0f172a">Payment failed</h1>
         <p style="font-size:15px;line-height:1.7;color:#334155">
-          We could not collect your latest subscription payment. Please update your card to keep your paid features active.
+          We could not collect your latest subscription payment. Please update your card.
         </p>
       </div>
     `

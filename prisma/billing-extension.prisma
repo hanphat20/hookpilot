@@ -1,0 +1,40 @@
+// Merge these fields into your existing Prisma schema.
+
+enum Plan {
+  free
+  starter
+  pro
+}
+
+model User {
+  id                       String   @id @default(cuid())
+  email                    String   @unique
+  name                     String?
+  plan                     Plan     @default(free)
+  stripeCustomerId         String?  @unique
+  stripeSubscriptionId     String?  @unique
+  stripePriceId            String?
+  subscriptionStatus       String?
+  currentPeriodEnd         DateTime?
+  planLockedAt             DateTime?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model UsageEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  feature    String
+  usedAt     DateTime @default(now())
+
+  @@index([userId, feature, usedAt])
+}
+
+model BillingEmailLog {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String
+  sentAt     DateTime @default(now())
+
+  @@index([userId, type, sentAt])
+}

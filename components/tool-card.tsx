@@ -12,7 +12,7 @@ export function ToolCard({ href, title, subtitle, description, badge }: Props) {
   return (
     <Link
       href={href}
-      className="group rounded-[30px] border border-white/10 bg-white/[0.04] p-7 shadow-[0_25px_80px_rgba(1,8,20,0.35)] transition hover:-translate-y-1 hover:border-cyan-400/35 hover:bg-white/[0.05]"
+      className="group rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_25px_80px_rgba(1,8,20,0.35)] transition hover:-translate-y-1 hover:border-cyan-400/35 hover:bg-white/[0.05] sm:rounded-[30px] sm:p-7"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -25,7 +25,11 @@ export function ToolCard({ href, title, subtitle, description, badge }: Props) {
         </span>
       </div>
 
-      <p className="mt-6 text-lg leading-8 text-slate-300">{description}</p>
+      <div className="mt-5 text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">
+        Used by real estate agents
+      </div>
+
+      <p className="mt-5 text-lg leading-8 text-slate-300">{description}</p>
       <div className="mt-8 text-lg font-medium text-cyan-300">Open tool →</div>
     </Link>
   );

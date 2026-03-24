@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { BrandMark } from "@/components/brand-mark";
-import { CustomerAuthButtons } from "@/components/customer-auth-buttons";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/tools", label: "Tools" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/login", label: "Login" },
 ];
 
 export function Navbar() {
@@ -22,7 +22,7 @@ export function Navbar() {
           <BrandMark />
 
           <nav className="hidden items-center gap-8 lg:flex">
-            {navLinks.map((item) => (
+            {navLinks.slice(0, 4).map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -35,18 +35,17 @@ export function Navbar() {
 
           <div className="hidden items-center gap-3 lg:flex">
             <Link
-              href="/tools"
-              className="rounded-2xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
-            >
-              Open Tools
-            </Link>
-            <Link
               href="/pricing"
               className="rounded-2xl bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
             >
               Upgrade
             </Link>
-            <CustomerAuthButtons />
+            <Link
+              href="/login"
+              className="rounded-2xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              Login
+            </Link>
           </div>
 
           <button
@@ -74,24 +73,12 @@ export function Navbar() {
               ))}
 
               <Link
-                href="/tools"
-                onClick={() => setOpen(false)}
-                className="mt-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
-              >
-                Open Tools
-              </Link>
-
-              <Link
                 href="/pricing"
                 onClick={() => setOpen(false)}
-                className="rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                className="mt-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
               >
-                Upgrade
+                Upgrade now
               </Link>
-
-              <div className="pt-2">
-                <CustomerAuthButtons />
-              </div>
             </div>
           </div>
         ) : null}

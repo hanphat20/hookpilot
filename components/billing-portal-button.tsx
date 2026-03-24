@@ -3,30 +3,37 @@
 import { useState } from "react";
 
 type Props = {
+  userId?: string | null;
   customerId?: string | null;
 };
 
-export function BillingPortalButton({ customerId }: Props) {
+export function BillingPortalButton({ userId, customerId }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function openPortal() {
     setError("");
 
-    if (!customerId) {
-      setError("Missing Stripe customer ID.");
+    const hasUserId = !!userId;
+    const hasCustomerId = !!customerId;
+
+    if (!hasUserId && !hasCustomerId) {
+      setError("Billing details are not available yet.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("/api/stripe/portal", {
+      const endpoint = hasUserId ? "/api/billing/portal" : "/api/stripe/portal";
+      const payload = hasUserId ? { userId } : { customerId };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ customerId }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -36,7 +43,7 @@ export function BillingPortalButton({ customerId }: Props) {
       }
 
       if (!data?.url) {
-        throw new Error("Missing portal URL");
+        throw new Error("Missing billing portal URL");
       }
 
       window.location.href = data.url;
@@ -53,9 +60,9 @@ export function BillingPortalButton({ customerId }: Props) {
         type="button"
         onClick={openPortal}
         disabled={loading}
-        className="rounded-2xl border border-white/10 bg-white/8 px-6 py-4 text-base font-medium text-white transition hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-60"
+        className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Opening..." : "Manage card & auto-renew"}
+        {loading ? "Opening..." : "Manage payment details"}
       </button>
       {error ? <p className="text-sm text-rose-300">{error}</p> : null}
     </div>

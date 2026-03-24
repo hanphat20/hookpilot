@@ -5,10 +5,11 @@ import { useState } from "react";
 type Props = {
   priceId: string;
   email?: string;
+  userId?: string | null;
   label?: string;
 };
 
-export function CheckoutButton({ priceId, email, label = "Choose plan" }: Props) {
+export function CheckoutButton({ priceId, email, userId, label = "Choose plan" }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,19 +22,23 @@ export function CheckoutButton({ priceId, email, label = "Choose plan" }: Props)
     }
 
     if (!email) {
-      setError("Please enter your email first.");
+      setError("Please login with your email first.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("/api/stripe/checkout", {
+      const useUnifiedCheckout = !!userId;
+      const endpoint = useUnifiedCheckout ? "/api/checkout" : "/api/stripe/checkout";
+      const payload = useUnifiedCheckout ? { priceId, email, userId } : { priceId, email };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ priceId, email }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();

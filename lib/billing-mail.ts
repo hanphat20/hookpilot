@@ -9,3 +9,7 @@ export async function sendPaymentFailedEmail(email: string) {
 export async function sendPlanLockedEmail(email: string) {
   console.log("plan locked email:", email);
 }
+
+export async function sendFirstPaymentOfferEmail(email: string) {
+  console.log("first payment offer email:", email);
+}

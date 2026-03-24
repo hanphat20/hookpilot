@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { BrandMark } from "@/components/brand-mark";
+import { CustomerAuthButtons } from "@/components/customer-auth-buttons";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/tools", label: "Tools" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/login", label: "Login" },
 ];
 
 export function Navbar() {
@@ -22,7 +22,7 @@ export function Navbar() {
           <BrandMark />
 
           <nav className="hidden items-center gap-8 lg:flex">
-            {navLinks.slice(0, 4).map((item) => (
+            {navLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -40,12 +40,7 @@ export function Navbar() {
             >
               Upgrade
             </Link>
-            <Link
-              href="/login"
-              className="rounded-2xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
-            >
-              Login
-            </Link>
+            <CustomerAuthButtons />
           </div>
 
           <button
@@ -79,6 +74,10 @@ export function Navbar() {
               >
                 Upgrade now
               </Link>
+
+              <div className="mt-2">
+                <CustomerAuthButtons />
+              </div>
             </div>
           </div>
         ) : null}

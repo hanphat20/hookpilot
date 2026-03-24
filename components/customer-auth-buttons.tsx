@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
 export function CustomerAuthButtons() {
@@ -26,16 +27,20 @@ export function CustomerAuthButtons() {
 
     loadUser();
 
-    if (!supabase) return () => {
-      mounted = false;
-    };
+    if (!supabase) {
+      return () => {
+        mounted = false;
+      };
+    }
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setEmail(session?.user?.email || "");
-      setLoading(false);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        setEmail(session?.user?.email || "");
+        setLoading(false);
+      }
+    );
 
     return () => {
       mounted = false;

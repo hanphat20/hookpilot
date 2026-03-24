@@ -21,7 +21,7 @@ export function CustomerAuthButtons() {
     return (
       <Link
         href="/login"
-        className="rounded-2xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+        className="inline-flex rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
       >
         Login
       </Link>
@@ -29,12 +29,12 @@ export function CustomerAuthButtons() {
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="hidden text-sm text-slate-300 md:inline">{email}</span>
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <span className="max-w-[220px] truncate text-sm text-slate-300">{email}</span>
       <button
         type="button"
         onClick={signOut}
-        className="rounded-2xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+        className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
       >
         Sign out
       </button>

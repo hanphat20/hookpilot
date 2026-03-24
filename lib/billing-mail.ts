@@ -13,3 +13,7 @@ export async function sendPlanLockedEmail(email: string) {
 export async function sendFirstPaymentOfferEmail(email: string) {
   console.log("first payment offer email:", email);
 }
+
+export async function sendExpiryReminderEmail(email: string) {
+  console.log("expiry reminder email:", email);
+}

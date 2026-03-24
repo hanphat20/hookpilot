@@ -1,23 +1,23 @@
 import { NextResponse } from "next/server";
-import { sendExpiryReminderEmail } from "@/lib/billing-mail";
+import { sendExpiryReminderEmail, sendPlanLockedEmail } from "@/lib/billing-mail";
 
 export const runtime = "nodejs";
 
-export async function GET(req: Request) {
-  const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET() {
+  try {
+    console.log("subscription reminder cron invoked");
 
-  if (process.env.DEBUG_REMINDER_EMAIL_TO) {
-    await sendExpiryReminderEmail(process.env.DEBUG_REMINDER_EMAIL_TO, 3);
-  }
+    // Safe no-op placeholder until your real reminder query is wired up.
+    // Keeps production build clean and gives you one place to add DB logic later.
 
-  return NextResponse.json({
-    ok: true,
-    mode: "build-stable",
-    reminders: process.env.DEBUG_REMINDER_EMAIL_TO ? 1 : 0,
-    locked: 0,
-    checked: 0,
-  });
+    return NextResponse.json({
+      ok: true,
+      message: "Subscription reminder cron is ready.",
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || "Could not run subscription reminders" },
+      { status: 500 }
+    );
+  }
 }

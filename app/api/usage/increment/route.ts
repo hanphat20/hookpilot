@@ -1,36 +1,41 @@
-import { createClient } from "@supabase/supabase-js"
-import { NextResponse } from "next/server"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
-  const { userId } = await req.json()
+  const { userId, toolKey } = await req.json();
 
-  const today = new Date().toISOString().split("T")[0]
-
-  const { data } = await supabase
-    .from("usage_logs")
-    .select("*")
-    .eq("auth_user_id", userId)
-    .eq("date", today)
-    .maybeSingle()
-
-  if (data) {
-    await supabase
-      .from("usage_logs")
-      .update({ count: data.count + 1 })
-      .eq("auth_user_id", userId)
-      .eq("date", today)
-  } else {
-    await supabase.from("usage_logs").insert({
-      auth_user_id: userId,
-      date: today,
-      count: 1,
-    })
+  if (!userId || !toolKey) {
+    return NextResponse.json({ error: "Missing userId or toolKey" }, { status: 400 });
   }
 
-  return NextResponse.json({ ok: true })
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: existing } = await supabaseAdmin
+    .from("usage_logs")
+    .select("id,count")
+    .eq("auth_user_id", userId)
+    .eq("tool_key", toolKey)
+    .eq("usage_date", today)
+    .maybeSingle();
+
+  if (!existing) {
+    const { error } = await supabaseAdmin.from("usage_logs").insert({
+      auth_user_id: userId,
+      tool_key: toolKey,
+      usage_date: today,
+      count: 1,
+    });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true, count: 1 });
+  }
+
+  const nextCount = (existing.count || 0) + 1;
+  const { error } = await supabaseAdmin
+    .from("usage_logs")
+    .update({ count: nextCount })
+    .eq("id", existing.id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ ok: true, count: nextCount });
 }

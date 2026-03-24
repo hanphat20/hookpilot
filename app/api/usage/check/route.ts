@@ -1,22 +1,24 @@
-import { createClient } from "@supabase/supabase-js"
-import { NextResponse } from "next/server"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
-  const { userId } = await req.json()
+  const { userId, toolKey } = await req.json();
 
-  const today = new Date().toISOString().split("T")[0]
+  if (!userId || !toolKey) {
+    return NextResponse.json({ error: "Missing userId or toolKey" }, { status: 400 });
+  }
 
-  const { data } = await supabase
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data, error } = await supabaseAdmin
     .from("usage_logs")
     .select("count")
     .eq("auth_user_id", userId)
-    .eq("date", today)
-    .maybeSingle()
+    .eq("tool_key", toolKey)
+    .eq("usage_date", today)
+    .maybeSingle();
 
-  return NextResponse.json({ count: data?.count || 0 })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ count: data?.count || 0 });
 }

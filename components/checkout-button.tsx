@@ -5,7 +5,7 @@ import { useState } from "react";
 type Props = {
   priceId: string;
   email?: string;
-  userId?: string | null;
+  userId?: string;
   label?: string;
 };
 
@@ -16,41 +16,20 @@ export function CheckoutButton({ priceId, email, userId, label = "Choose plan" }
   async function handleCheckout() {
     setError("");
 
-    if (!priceId) {
-      setError("Missing Stripe price ID.");
-      return;
-    }
-
-    if (!email) {
-      setError("Please login with your email first.");
-      return;
-    }
+    if (!priceId) return setError("Missing Stripe price ID.");
+    if (!email) return setError("Please login first.");
+    if (!userId) return setError("Missing user account.");
 
     setLoading(true);
-
     try {
-      const useUnifiedCheckout = !!userId;
-      const endpoint = useUnifiedCheckout ? "/api/checkout" : "/api/stripe/checkout";
-      const payload = useUnifiedCheckout ? { priceId, email, userId } : { priceId, email };
-
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/checkout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId, email, userId }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Checkout failed");
-      }
-
-      if (!data?.url) {
-        throw new Error("Missing checkout URL");
-      }
-
+      if (!res.ok) throw new Error(data?.error || "Checkout failed");
+      if (!data?.url) throw new Error("Missing checkout URL");
       window.location.href = data.url;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Checkout failed");

@@ -5,16 +5,40 @@ import { useEffect, useMemo, useState } from "react";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { PageShell } from "@/components/page-shell";
 import { SectionBadge } from "@/components/section-badge";
+import { supabase } from "@/lib/supabase";
+
+type SubscriptionResponse = {
+  subscription: {
+    auth_user_id: string;
+    plan: string;
+    status: string | null;
+    stripe_customer_id: string | null;
+    current_period_end: string | null;
+  } | null;
+};
 
 export default function DashboardPage() {
   const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
   const [plan, setPlan] = useState("free");
   const [customerId, setCustomerId] = useState("");
 
   useEffect(() => {
-    setEmail(localStorage.getItem("user_email") || "");
-    setPlan(localStorage.getItem("customer_plan") || "free");
-    setCustomerId(localStorage.getItem("stripe_customer_id") || "");
+    async function load() {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+      if (!user) return;
+      setEmail(user.email || "");
+      setUserId(user.id);
+
+      const res = await fetch(`/api/me/subscription?userId=${encodeURIComponent(user.id)}`);
+      const json = (await res.json()) as SubscriptionResponse;
+      if (json.subscription) {
+        setPlan(json.subscription.plan || "free");
+        setCustomerId(json.subscription.stripe_customer_id || "");
+      }
+    }
+    load();
   }, []);
 
   const usageLimit = useMemo(() => {
@@ -23,7 +47,7 @@ export default function DashboardPage() {
     return "5 / day";
   }, [plan]);
 
-  if (!email) {
+  if (!userId) {
     return (
       <PageShell>
         <div className="mx-auto max-w-3xl rounded-[28px] border border-white/10 bg-white/[0.04] p-6 text-center shadow-[0_30px_90px_rgba(2,10,20,0.35)] sm:rounded-[34px] sm:p-8">
@@ -32,7 +56,7 @@ export default function DashboardPage() {
             Please login to continue
           </h1>
           <p className="mt-4 text-base leading-8 text-slate-300 sm:mt-5 sm:text-lg">
-            Sign in with your email to view your plan, usage allowance, and account details.
+            Sign in with your email to view your plan, allowance, and account details.
           </p>
           <Link
             href="/login"
@@ -55,7 +79,7 @@ export default function DashboardPage() {
               Dashboard
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:mt-5 sm:text-lg md:text-xl md:leading-9">
-              See your plan, your daily allowance, and your account details in one place.
+              See your current plan, daily usage allowance, and billing details in one place.
             </p>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3 sm:mt-10">
@@ -97,11 +121,11 @@ export default function DashboardPage() {
               Payment details
             </h2>
             <p className="mt-4 text-base leading-8 text-slate-100 sm:text-lg">
-              Update your saved payment method and manage your subscription from your account area.
+              Update your payment method and manage your subscription from your account area.
             </p>
 
             <div className="mt-6 sm:mt-8">
-              <BillingPortalButton customerId={customerId || undefined} />
+              <BillingPortalButton userId={userId} />
             </div>
 
             {!customerId ? (

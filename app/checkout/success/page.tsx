@@ -4,13 +4,6 @@ import { useEffect, useState } from "react";
 import { PageShell } from "@/components/page-shell";
 import { SectionBadge } from "@/components/section-badge";
 
-type VerifyResponse = {
-  plan?: string;
-  customerId?: string | null;
-  email?: string | null;
-  status?: string | null;
-};
-
 export default function CheckoutSuccessPage() {
   const [state, setState] = useState("Verifying your upgrade...");
 
@@ -26,22 +19,14 @@ export default function CheckoutSuccessPage() {
 
       const res = await fetch("/api/stripe/verify-session", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId }),
       });
-
-      const data = (await res.json()) as VerifyResponse;
 
       if (!res.ok) {
         setState("Could not verify the checkout session.");
         return;
       }
-
-      if (data.email) localStorage.setItem("user_email", data.email);
-      if (data.plan) localStorage.setItem("customer_plan", data.plan);
-      if (data.customerId) localStorage.setItem("stripe_customer_id", data.customerId);
 
       setState("Upgrade complete. Redirecting to your dashboard...");
       setTimeout(() => {

@@ -9,7 +9,7 @@ export default function CheckoutCancelPage() {
         <SectionBadge>Checkout cancelled</SectionBadge>
         <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white">Your upgrade was not completed</h1>
         <p className="mt-5 text-lg leading-8 text-slate-300">
-          You can return to pricing any time and continue when you are ready.
+          You can return to pricing whenever you are ready.
         </p>
         <Link
           href="/pricing"

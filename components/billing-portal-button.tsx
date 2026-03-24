@@ -4,48 +4,26 @@ import { useState } from "react";
 
 type Props = {
   userId?: string | null;
-  customerId?: string | null;
 };
 
-export function BillingPortalButton({ userId, customerId }: Props) {
+export function BillingPortalButton({ userId }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function openPortal() {
     setError("");
-
-    const hasUserId = !!userId;
-    const hasCustomerId = !!customerId;
-
-    if (!hasUserId && !hasCustomerId) {
-      setError("Billing details are not available yet.");
-      return;
-    }
+    if (!userId) return setError("Missing user account.");
 
     setLoading(true);
-
     try {
-      const endpoint = hasUserId ? "/api/billing/portal" : "/api/stripe/portal";
-      const payload = hasUserId ? { userId } : { customerId };
-
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/billing/portal", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Could not open billing portal");
-      }
-
-      if (!data?.url) {
-        throw new Error("Missing billing portal URL");
-      }
-
+      if (!res.ok) throw new Error(data?.error || "Could not open billing portal");
+      if (!data?.url) throw new Error("Missing billing portal URL");
       window.location.href = data.url;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not open billing portal");

@@ -29,10 +29,10 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-3xl rounded-[28px] border border-white/10 bg-white/[0.04] p-6 text-center shadow-[0_30px_90px_rgba(2,10,20,0.35)] sm:rounded-[34px] sm:p-8">
           <SectionBadge>Login required</SectionBadge>
           <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:mt-6 sm:text-5xl">
-            You need to login first
+            Please login to continue
           </h1>
           <p className="mt-4 text-base leading-8 text-slate-300 sm:mt-5 sm:text-lg">
-            Continue with your customer email before accessing the billing and tool dashboard.
+            Sign in with your email to view your plan, usage allowance, and account details.
           </p>
           <Link
             href="/login"
@@ -50,27 +50,27 @@ export default function DashboardPage() {
       <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_35px_100px_rgba(2,10,20,0.38)] sm:rounded-[36px] sm:p-9">
         <div className="grid gap-6 xl:grid-cols-[1.35fr,0.95fr] xl:gap-8">
           <div>
-            <SectionBadge>Billing & tools</SectionBadge>
+            <SectionBadge>Your workspace</SectionBadge>
             <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:mt-6 sm:text-5xl md:text-6xl">
               Dashboard
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:mt-5 sm:text-lg md:text-xl md:leading-9">
-              Manage your plan, usage, customer billing details, and access to the real estate tool suite.
+              See your plan, your daily allowance, and your account details in one place.
             </p>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3 sm:mt-10">
               <div className="rounded-[22px] border border-white/10 bg-[#06101d]/80 px-5 py-5 sm:rounded-[24px] sm:px-6">
-                <div className="text-xs uppercase tracking-[0.22em] text-slate-400 sm:text-sm">Customer</div>
+                <div className="text-xs uppercase tracking-[0.22em] text-slate-400 sm:text-sm">Email</div>
                 <div className="mt-2 break-all text-base font-medium text-white sm:text-lg">{email}</div>
               </div>
 
               <div className="rounded-[22px] border border-white/10 bg-[#06101d]/80 px-5 py-5 sm:rounded-[24px] sm:px-6">
-                <div className="text-xs uppercase tracking-[0.22em] text-slate-400 sm:text-sm">Current plan</div>
+                <div className="text-xs uppercase tracking-[0.22em] text-slate-400 sm:text-sm">Plan</div>
                 <div className="mt-2 text-2xl font-semibold capitalize text-white sm:text-3xl">{plan}</div>
               </div>
 
               <div className="rounded-[22px] border border-white/10 bg-[#06101d]/80 px-5 py-5 sm:rounded-[24px] sm:px-6">
-                <div className="text-xs uppercase tracking-[0.22em] text-slate-400 sm:text-sm">Usage limit</div>
+                <div className="text-xs uppercase tracking-[0.22em] text-slate-400 sm:text-sm">Daily allowance</div>
                 <div className="mt-2 text-2xl font-semibold text-white sm:text-3xl">{usageLimit}</div>
               </div>
             </div>
@@ -86,23 +86,29 @@ export default function DashboardPage() {
                 href="/pricing"
                 className="inline-flex items-center justify-center rounded-2xl bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300"
               >
-                Upgrade plan
+                Change plan
               </Link>
             </div>
           </div>
 
           <div className="rounded-[26px] border border-cyan-400/25 bg-cyan-400/[0.09] p-6 sm:rounded-[30px] sm:p-8">
-            <div className="text-xs uppercase tracking-[0.22em] text-cyan-100 sm:text-sm">Auto-renew</div>
+            <div className="text-xs uppercase tracking-[0.22em] text-cyan-100 sm:text-sm">Billing</div>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:mt-5 sm:text-4xl">
-              Saved card & renewal settings
+              Payment details
             </h2>
             <p className="mt-4 text-base leading-8 text-slate-100 sm:text-lg">
-              Update card details, keep renewals active, and manage billing from the customer area.
+              Update your saved payment method and manage your subscription from your account area.
             </p>
 
             <div className="mt-6 sm:mt-8">
               <BillingPortalButton customerId={customerId || undefined} />
             </div>
+
+            {!customerId ? (
+              <p className="mt-4 text-sm text-slate-200">
+                Billing management becomes available after your first paid upgrade.
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

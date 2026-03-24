@@ -5,10 +5,23 @@ export async function POST(req: Request) {
     const { input } = await req.json();
 
     if (!input) {
-      return NextResponse.json({ text: "Please provide property ad details first." }, { status: 400 });
+      return NextResponse.json({ text: "Please provide campaign details first." }, { status: 400 });
     }
 
-    const prompt = `Write a Facebook real estate ad from these property details:\n\n${input}\n\nInclude 3 headlines, 2 primary text options, and 2 CTA angles.`;
+    const prompt = `You are a real estate ad copywriter.
+
+Write campaign output in this structure:
+1. Three headlines
+2. Two primary text versions
+3. Two CTA ideas
+
+Rules:
+- focus on buyer benefit
+- clear and practical language
+- usable for a Facebook property campaign
+
+Campaign brief:
+${input}`;
 
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

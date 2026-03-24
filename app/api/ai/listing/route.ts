@@ -8,7 +8,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ text: "Please provide property details first." }, { status: 400 });
     }
 
-    const prompt = `Write a polished real estate listing description from these property details:\n\n${text}\n\nMake it clear, professional, and appealing.`;
+    const prompt = `You are a professional real estate copywriter.
+
+Write a polished property listing in this structure:
+1. Listing title
+2. Property highlights
+3. Main description
+4. Why buyers may like it
+5. Clear call to action
+
+Tone:
+- professional
+- persuasive
+- easy to scan
+- suited for live listing pages
+
+Property details:
+${text}`;
 
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",

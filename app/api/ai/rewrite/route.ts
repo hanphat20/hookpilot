@@ -2,26 +2,26 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { input } = await req.json();
+    const { input, mode } = await req.json();
 
     if (!input) {
-      return NextResponse.json({ text: "Please provide lead context first." }, { status: 400 });
+      return NextResponse.json({ text: "Please paste the current listing first." }, { status: 400 });
     }
 
-    const prompt = `You are a real estate sales assistant.
+    const prompt = `You are a professional real estate listing editor.
 
-Write follow-up output in this structure:
-1. Quick SMS version
-2. Friendly email-style version
-3. Closing push version
+Rewrite the following property listing.
+
+Rewrite goal:
+${mode || "Make it more persuasive"}
 
 Rules:
-- natural and human
-- specific to the buyer situation
-- professional
-- no hypey spam language
+- keep it professional
+- make it easier to publish
+- improve clarity and positioning
+- do not add fake facts
 
-Lead context:
+Current listing:
 ${input}`;
 
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -39,7 +39,7 @@ ${input}`;
     const data = await res.json();
     return NextResponse.json({ text: data?.choices?.[0]?.message?.content || "No result returned." });
   } catch (error) {
-    console.error("buyer api error", error);
-    return NextResponse.json({ text: "Could not generate follow-up right now." }, { status: 500 });
+    console.error("rewrite api error", error);
+    return NextResponse.json({ text: "Could not rewrite the listing right now." }, { status: 500 });
   }
 }

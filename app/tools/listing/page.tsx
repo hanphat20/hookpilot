@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/page-shell";
 import { SectionBadge } from "@/components/section-badge";
+import Paywall from "@/components/paywall";
 
 export default function ListingToolPage() {
   const [text, setText] = useState("");
@@ -37,21 +38,11 @@ export default function ListingToolPage() {
   if (plan === "free") {
     return (
       <PageShell>
-        <div className="mx-auto max-w-3xl rounded-[28px] border border-white/10 bg-white/[0.04] p-6 text-center shadow-[0_30px_90px_rgba(2,10,20,0.35)] sm:rounded-[34px] sm:p-8">
-          <SectionBadge>Starter required</SectionBadge>
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:mt-6 sm:text-5xl">
-            Upgrade to unlock Listing Generator
-          </h1>
-          <p className="mt-4 text-base leading-8 text-slate-300 sm:mt-5 sm:text-lg">
-            This tool is available on Starter and Pro plans.
-          </p>
-          <a
-            href="/pricing"
-            className="mt-7 inline-flex rounded-2xl bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300 sm:mt-8"
-          >
-            Upgrade now
-          </a>
-        </div>
+        <Paywall
+          title="Unlock full listing output"
+          description="Starter gives you the full MLS Listing Writer with better structure, stronger positioning, and more room to work through live properties."
+          buttonText="Unlock Starter"
+        />
       </PageShell>
     );
   }
@@ -61,10 +52,10 @@ export default function ListingToolPage() {
       <div className="max-w-5xl">
         <SectionBadge>Starter tool</SectionBadge>
         <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:mt-6 sm:text-5xl md:text-6xl">
-          Real Estate Listing Generator
+          MLS Listing Writer
         </h1>
         <p className="mt-4 text-base leading-8 text-slate-300 sm:mt-5 sm:text-lg md:text-xl md:leading-9">
-          Paste property details and generate a cleaner real estate listing description with a more polished presentation.
+          Turn raw property details into a cleaner listing structure with title, description, highlights, and CTA.
         </p>
       </div>
 
@@ -74,7 +65,7 @@ export default function ListingToolPage() {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Example: 3-bedroom townhouse in Austin, 2 baths, open kitchen, private patio, close to schools and shopping..."
+            placeholder="Example: 4-bedroom detached home in Dallas, updated kitchen, large backyard, close to schools, ideal for families..."
             className="min-h-[260px] w-full rounded-2xl border border-white/10 bg-[#05101d] px-4 py-4 text-base text-white outline-none placeholder:text-slate-500 sm:min-h-[300px] sm:px-5 sm:text-lg"
           />
           <div className="mt-6">
@@ -92,12 +83,22 @@ export default function ListingToolPage() {
         <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_30px_90px_rgba(2,10,20,0.35)] sm:rounded-[34px] sm:p-7">
           {!output ? (
             <div className="flex min-h-[320px] items-center justify-center rounded-[24px] border border-dashed border-white/10 bg-[#05101d]/70 px-4 text-center text-base leading-8 text-slate-400 sm:min-h-[380px] sm:rounded-[28px] sm:text-lg">
-              Your generated listing will appear here.
+              Your listing output will appear here.
             </div>
           ) : (
-            <pre className="whitespace-pre-wrap rounded-[24px] border border-white/10 bg-[#05101d]/75 p-5 text-base leading-8 text-slate-200 sm:rounded-[28px] sm:p-6 sm:text-lg">
+            <>
+              <pre className="whitespace-pre-wrap rounded-[24px] border border-white/10 bg-[#05101d]/75 p-5 text-base leading-8 text-slate-200 sm:rounded-[28px] sm:p-6 sm:text-lg">
 {output}
-            </pre>
+              </pre>
+              <div className="mt-5 rounded-[24px] border border-cyan-400/20 bg-cyan-400/[0.06] p-5">
+                <div className="text-sm font-semibold text-white">Why this works</div>
+                <ul className="mt-3 space-y-2 text-sm leading-7 text-slate-200">
+                  <li>• Creates a cleaner public-facing structure than raw notes</li>
+                  <li>• Keeps the strongest selling points near the top</li>
+                  <li>• Ends with a clear next-step call to action</li>
+                </ul>
+              </div>
+            </>
           )}
         </div>
       </section>

@@ -1,0 +1,15 @@
+OPTIONAL CLEANUP AFTER OVERWRITE
+
+You can safely remove these old overlay notes from the repo root if you want a cleaner production project:
+
+README-billing-automation.md
+README-build-stable.txt
+README-cleanup-unify-supabase-stripe.txt
+README-complete-polish.txt
+README-conversion-ui.txt
+README-final-ui-money-version.txt
+README-full-money-system.txt
+README-mobile-first-polish.txt
+README-no-prisma-fix.txt
+README-polished-ui.txt
+README.txt

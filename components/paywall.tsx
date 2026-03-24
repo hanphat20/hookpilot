@@ -1,16 +1,31 @@
-'use client';
-export default function Paywall({ onUpgrade }: any) {
+"use client";
+
+type Props = {
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  href?: string;
+};
+
+export default function Paywall({
+  title = "Unlock follow-up and closing scripts",
+  description = "Turn more leads into real deals with stronger follow-up messages, ad copy, and listing improvements.",
+  buttonText = "Unlock full workflow",
+  href = "/pricing",
+}: Props) {
   return (
-    <div className="p-6 bg-[#06101d] border border-cyan-400/20 rounded-2xl">
-      <h2 className="text-xl font-semibold text-white">
-        Unlock follow-up and closing scripts
-      </h2>
-      <p className="text-slate-300 mt-2">
-        Turn more leads into real deals.
+    <div className="rounded-[28px] border border-cyan-400/25 bg-cyan-400/[0.08] p-6 shadow-[0_25px_80px_rgba(1,8,20,0.35)] sm:p-8">
+      <div className="text-xs uppercase tracking-[0.22em] text-cyan-100">Upgrade required</div>
+      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white">{title}</h2>
+      <p className="mt-4 max-w-2xl text-base leading-8 text-slate-100 sm:text-lg">
+        {description}
       </p>
-      <button onClick={onUpgrade} className="mt-4 w-full bg-cyan-400 text-black py-3 rounded-xl font-semibold">
-        Unlock full workflow
-      </button>
+      <a
+        href={href}
+        className="mt-6 inline-flex rounded-2xl bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-300"
+      >
+        {buttonText}
+      </a>
     </div>
   );
 }

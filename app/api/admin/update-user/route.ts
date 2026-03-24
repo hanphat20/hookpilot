@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { getEmailFromUserId, requireAdminByEmail } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export async function POST(req: Request) {
   const body = await req.json();
   const { requesterId, email, plan, days = 30 } = body;
-
-  const requesterEmail = await getEmailFromUserId(requesterId);
-  const auth = await requireAdminByEmail(requesterEmail);
+  const auth = await requireAdmin(requesterId);
 
   if (!auth.ok) {
     return auth.response;

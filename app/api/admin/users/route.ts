@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { getEmailFromUserId, requireAdminByEmail } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const requesterId = searchParams.get("requesterId");
-  const requesterEmail = await getEmailFromUserId(requesterId);
-  const auth = await requireAdminByEmail(requesterEmail);
+  const auth = await requireAdmin(requesterId);
 
   if (!auth.ok) {
     return auth.response;

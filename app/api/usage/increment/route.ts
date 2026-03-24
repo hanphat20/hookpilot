@@ -3,11 +3,6 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   const { userId, toolKey } = await req.json();
-
-  if (!userId || !toolKey) {
-    return NextResponse.json({ error: "Missing userId or toolKey" }, { status: 400 });
-  }
-
   const today = new Date().toISOString().slice(0, 10);
 
   const { data: existing } = await supabaseAdmin
@@ -19,23 +14,21 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   if (!existing) {
-    const { error } = await supabaseAdmin.from("usage_logs").insert({
+    await supabaseAdmin.from("usage_logs").insert({
       auth_user_id: userId,
       tool_key: toolKey,
       usage_date: today,
       count: 1,
     });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true, count: 1 });
   }
 
-  const nextCount = (existing.count || 0) + 1;
-  const { error } = await supabaseAdmin
+  const next = existing.count + 1;
+
+  await supabaseAdmin
     .from("usage_logs")
-    .update({ count: nextCount })
+    .update({ count: next })
     .eq("id", existing.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  return NextResponse.json({ ok: true, count: nextCount });
+  return NextResponse.json({ ok: true, count: next });
 }
